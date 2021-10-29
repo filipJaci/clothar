@@ -14,8 +14,8 @@ class ClothController extends Controller
             'image' => 'required',
             'description' => 'nullable',
             'category' => 'nullable|numeric',
-            'buy_at' => 'nullable',
-            'buy_date' => 'nullable',
+            'buyAt' => 'nullable',
+            'buyDate' => 'nullable|date',
             // IN USE
             'status' => 'required|numeric'
 
@@ -34,5 +34,16 @@ class ClothController extends Controller
         $data = $this->validateData();
 
         $cloth->update($data);
+    }
+
+    public function destroy(Cloth $cloth)
+    {
+        $cloth->delete();
+
+        return response()->json([
+            'title' => 'Delete Successful',
+            'message' => 'A piece of clothing has been deleted.',
+            'write' => true,
+        ], 200);
     }
 }

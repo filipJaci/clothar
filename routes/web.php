@@ -13,3 +13,4 @@
 
 Route::post('/cloth', 'ClothController@store');
 Route::patch('/cloth/{cloth}', 'ClothController@update');
+Route::delete('/cloth/{cloth}', 'ClothController@destroy');

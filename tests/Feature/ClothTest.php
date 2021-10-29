@@ -5,18 +5,19 @@ namespace Tests\Feature;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 use App\Models\Cloth;
+use Carbon\Carbon;
 
 class ClothTest extends TestCase
 {
 
-    private function storeCloth(){
+    private function insertCloth(){
 
         return $this->post('/cloth',[
             'image' => 'image.jpg',
             'description' => null,
             'category' => null,
-            'buy_at' => null,
-            'buy_date' => null,
+            'buyAt' => null,
+            'buyDate' => null,
             // IN USE
             'status' => 1,
         ]);
@@ -30,7 +31,7 @@ class ClothTest extends TestCase
     {
         $this->withoutExceptionHandling();
 
-        $response = $this->storeCloth();
+        $response = $this->insertCloth();
 
         $response->assertOk();
         $this->assertCount(1, Cloth::all());
@@ -44,8 +45,8 @@ class ClothTest extends TestCase
             'image' => null,
             'description' => null,
             'category' => null,
-            'buy_at' => null,
-            'buy_date' => null,
+            'buyAt' => null,
+            'buyDate' => null,
             // IN USE
             'status' => 1,
         ]);
@@ -62,8 +63,8 @@ class ClothTest extends TestCase
             'image' => 'image.jpg',
             'description' => null,
             'category' => null,
-            'buy_at' => null,
-            'buy_date' => null,
+            'buyAt' => null,
+            'buyDate' => null,
             // IN USE
             'status' => null,
         ]);
@@ -74,15 +75,16 @@ class ClothTest extends TestCase
      /** @test */
      public function a_piece_of_cloth_can_be_updated()
      {
+        $this->withoutExceptionHandling();
 
-        $cloth = $this->storeCloth();
+        $cloth = $this->insertCloth();
 
         $this->patch('/cloth/' . Cloth::first()->id, [
             'image' => 'new_image.jpg',
             'description' => "new description",
             'category' => 1,
-            'buy_at' => "ACME Store",
-            'buy_date' => "10.10.2020.",
+            'buyAt' => "ACME Store",
+            'buyDate' => "2020-10-20",
             // IN USE
             'status' => 1,
         ]);
@@ -92,9 +94,23 @@ class ClothTest extends TestCase
         $this->assertEquals('new_image.jpg', $cloth->image);
         $this->assertEquals('new description', $cloth->description);
         $this->assertEquals(1, $cloth->category);
-        $this->assertEquals('ACME Store', $cloth->buy_at);
-        $this->assertEquals('10.10.2020.', $cloth->buy_date);
+        $this->assertEquals('ACME Store', $cloth->buyAt);
+        $this->assertEquals(Carbon::parse('2020-10-20'), $cloth->buyDate);
         $this->assertEquals(1, $cloth->status);
+
+     }
+
+     /** @test */
+     public function a_piece_of_cloth_can_be_removed()
+     {
+        $this->withoutExceptionHandling();
+
+        $this->insertCloth();
+
+        $response = $this->delete('/cloth/' . Cloth::first()->id);
+        
+        $this->assertCount(0, Cloth::all());
+
      }
      
 }
