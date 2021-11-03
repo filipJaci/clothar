@@ -18,7 +18,6 @@ class ClothTest extends TestCase
             'category' => null,
             'buyAt' => null,
             'buyDate' => null,
-            // IN USE
             'status' => 1,
         ]);
 
@@ -38,7 +37,7 @@ class ClothTest extends TestCase
     }
 
      /** @test */
-     public function a_piece_of_cloth_has_image()
+     public function a_piece_of_cloth_can_not_be_added_without_both_image_and_description()
      {
  
         $response = $this->post('/cloth',[
@@ -47,17 +46,20 @@ class ClothTest extends TestCase
             'category' => null,
             'buyAt' => null,
             'buyDate' => null,
-            // IN USE
             'status' => 1,
         ]);
- 
-        $response->assertSessionHasErrors('image');
+        
+        // ASSERT FOLLOWING ARE PROBLEMATIC
+        $response->assertSessionHasErrors(['image', 'description']);
+        // ASSERT FOLLOWING ARE NOT PROBLEMATIC
+        $response->assertSessionDoesntHaveErrors(['category', 'buyAt', 'buyDate', 'status']);
 
      }
 
      /** @test */
-     public function a_piece_of_cloth_has_status()
+     public function a_piece_of_cloth_can_be_added_without_status()
      {
+        // $this->withoutExceptionHandling();
  
         $response = $this->post('/cloth',[
             'image' => 'image.jpg',
@@ -65,11 +67,10 @@ class ClothTest extends TestCase
             'category' => null,
             'buyAt' => null,
             'buyDate' => null,
-            // IN USE
             'status' => null,
         ]);
- 
-         $response->assertSessionHasErrors('status');
+
+        $this->assertCount(1, Cloth::all());
      }
 
      /** @test */
@@ -85,8 +86,7 @@ class ClothTest extends TestCase
             'category' => 1,
             'buyAt' => "ACME Store",
             'buyDate' => "2020-10-20",
-            // IN USE
-            'status' => 1,
+            'status' => 2,
         ]);
 
         $cloth = Cloth::first();
@@ -96,7 +96,7 @@ class ClothTest extends TestCase
         $this->assertEquals(1, $cloth->category);
         $this->assertEquals('ACME Store', $cloth->buyAt);
         $this->assertEquals(Carbon::parse('2020-10-20'), $cloth->buyDate);
-        $this->assertEquals(1, $cloth->status);
+        $this->assertEquals(2, $cloth->status);
 
      }
 

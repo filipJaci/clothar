@@ -25,4 +25,15 @@ class Cloth extends Model
         'updated_at'
     ];
 
+    /**
+     * Set the status attribute if it is missing from the request.
+     *
+     * @param  string  $value
+     * @return number
+     */
+    public function setStatusAttribute($value)
+    {
+        $this->attributes['status'] = $value === null ? 1 : $value;
+    }
+
 }

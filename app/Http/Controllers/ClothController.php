@@ -5,35 +5,19 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Cloth;
 
+use App\Http\Requests\ClothStoreRequest;
+
 class ClothController extends Controller
 {
 
-    public function validateData(){ 
-        
-        return request()->validate([
-            'image' => 'required',
-            'description' => 'nullable',
-            'category' => 'nullable|numeric',
-            'buyAt' => 'nullable',
-            'buyDate' => 'nullable|date',
-            // IN USE
-            'status' => 'required|numeric'
-
-        ]);
+    public function store(ClothStoreRequest $request)
+    {
+        Cloth::create($request->validated());
     }
 
-    public function store()
+    public function update(ClothStoreRequest $request, Cloth $cloth)
     {
-        $data = $this->validateData();
-
-        Cloth::create($data);
-    }
-
-    public function update(Cloth $cloth)
-    {
-        $data = $this->validateData();
-
-        $cloth->update($data);
+        $cloth->update($request->validated());
     }
 
     public function destroy(Cloth $cloth)
