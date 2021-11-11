@@ -27,8 +27,8 @@ class ClothStoreRequest extends FormRequest
             'title' => 'required',
             'description' => 'nullable',
             'category' => 'nullable|numeric',
-            'buyAt' => 'nullable',
-            'buyDate' => 'nullable|date',
+            'buy_at' => 'nullable',
+            'buy_date' => 'nullable|date',
             'status' => 'nullable|numeric'
         ];
     }

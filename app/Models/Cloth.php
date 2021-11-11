@@ -20,7 +20,7 @@ class Cloth extends Model
     protected $table = 'clothes';
 
     protected $dates = [
-        'buyDate',
+        'buy_date',
         'created_at',
         'updated_at'
     ];

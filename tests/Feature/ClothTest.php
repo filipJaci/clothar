@@ -13,11 +13,11 @@ class ClothTest extends TestCase
     private function insertCloth(){
 
         return $this->post('/cloth',[
-            'title' => 'Short Sleves shirt',
+            'title' => 'Short Sleeves shirt',
             'description' => null,
             'category' => null,
-            'buyAt' => null,
-            'buyDate' => null,
+            'buy_at' => null,
+            'buy_date' => null,
             'status' => 1,
         ]);
 
@@ -45,8 +45,8 @@ class ClothTest extends TestCase
             'title' => null,
             'description' => null,
             'category' => null,
-            'buyAt' => null,
-            'buyDate' => null,
+            'buy_at' => null,
+            'buy_date' => null,
             'status' => null,
         ]);
 
@@ -64,8 +64,8 @@ class ClothTest extends TestCase
             'title' => 'Long Sleves shirt',
             'description' => "new description",
             'category' => 1,
-            'buyAt' => "ACME Store",
-            'buyDate' => "2020-10-20",
+            'buy_at' => "ACME Store",
+            'buy_date' => "2020-10-20",
             'status' => 2,
         ]);
 
@@ -74,8 +74,8 @@ class ClothTest extends TestCase
         $this->assertEquals('Long Sleves shirt', $cloth->title);
         $this->assertEquals('new description', $cloth->description);
         $this->assertEquals(1, $cloth->category);
-        $this->assertEquals('ACME Store', $cloth->buyAt);
-        $this->assertEquals(Carbon::parse('2020-10-20'), $cloth->buyDate);
+        $this->assertEquals('ACME Store', $cloth->buy_at);
+        $this->assertEquals(Carbon::parse('2020-10-20'), $cloth->buy_date);
         $this->assertEquals(2, $cloth->status);
 
      }
