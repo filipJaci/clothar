@@ -13,7 +13,7 @@ class ClothTest extends TestCase
     private function insertCloth(){
 
         return $this->post('/cloth',[
-            'image' => 'image.jpg',
+            'title' => 'Short Sleves shirt',
             'description' => null,
             'category' => null,
             'buyAt' => null,
@@ -37,32 +37,12 @@ class ClothTest extends TestCase
     }
 
      /** @test */
-     public function a_piece_of_cloth_can_not_be_added_without_both_image_and_description()
-     {
- 
-        $response = $this->post('/cloth',[
-            'image' => null,
-            'description' => null,
-            'category' => null,
-            'buyAt' => null,
-            'buyDate' => null,
-            'status' => 1,
-        ]);
-        
-        // ASSERT FOLLOWING ARE PROBLEMATIC
-        $response->assertSessionHasErrors(['image', 'description']);
-        // ASSERT FOLLOWING ARE NOT PROBLEMATIC
-        $response->assertSessionDoesntHaveErrors(['category', 'buyAt', 'buyDate', 'status']);
-
-     }
-
-     /** @test */
-     public function a_piece_of_cloth_can_be_added_without_status()
+     public function a_piece_of_cloth_cannot_be_added_without_title()
      {
         // $this->withoutExceptionHandling();
  
         $response = $this->post('/cloth',[
-            'image' => 'image.jpg',
+            'title' => null,
             'description' => null,
             'category' => null,
             'buyAt' => null,
@@ -70,7 +50,7 @@ class ClothTest extends TestCase
             'status' => null,
         ]);
 
-        $this->assertCount(1, Cloth::all());
+        $response->assertSessionHasErrors('title');
      }
 
      /** @test */
@@ -81,7 +61,7 @@ class ClothTest extends TestCase
         $cloth = $this->insertCloth();
 
         $this->patch('/cloth/' . Cloth::first()->id, [
-            'image' => 'new_image.jpg',
+            'title' => 'Long Sleves shirt',
             'description' => "new description",
             'category' => 1,
             'buyAt' => "ACME Store",
@@ -91,7 +71,7 @@ class ClothTest extends TestCase
 
         $cloth = Cloth::first();
 
-        $this->assertEquals('new_image.jpg', $cloth->image);
+        $this->assertEquals('Long Sleves shirt', $cloth->title);
         $this->assertEquals('new description', $cloth->description);
         $this->assertEquals(1, $cloth->category);
         $this->assertEquals('ACME Store', $cloth->buyAt);

@@ -24,11 +24,8 @@ class ClothStoreRequest extends FormRequest
     public function rules()
     {
         return [
-            // IF THE DESCRIPTION IS MISSING, IMAGE IS REQUIRED
-            'image' => 'required_without:description|nullable',
-            // IF THE IMAGE IS MISSING, DESCRIPTION IS REQUIRED
-            'description' => 'required_without:image|nullable',
-
+            'title' => 'required',
+            'description' => 'nullable',
             'category' => 'nullable|numeric',
             'buyAt' => 'nullable',
             'buyDate' => 'nullable|date',
