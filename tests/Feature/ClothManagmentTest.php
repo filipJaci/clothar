@@ -7,7 +7,7 @@ use Tests\TestCase;
 use App\Models\Cloth;
 use Carbon\Carbon;
 
-class ClothTest extends TestCase
+class ClothManagmentTest extends TestCase
 {
 
     private function insertCloth(){
@@ -36,22 +36,7 @@ class ClothTest extends TestCase
         $this->assertCount(1, Cloth::all());
     }
 
-     /** @test */
-     public function a_piece_of_cloth_cannot_be_added_without_title()
-     {
-        // $this->withoutExceptionHandling();
- 
-        $response = $this->post('/cloth',[
-            'title' => null,
-            'description' => null,
-            'category' => null,
-            'buy_at' => null,
-            'buy_date' => null,
-            'status' => null,
-        ]);
 
-        $response->assertSessionHasErrors('title');
-     }
 
      /** @test */
      public function a_piece_of_cloth_can_be_updated()
