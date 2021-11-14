@@ -52,4 +52,20 @@ class ClothTest extends TestCase
 
         $this->assertInstanceOf(Day::class, $cloth->days()->first());
     }
+
+    /** @test */
+    public function if_a_cloth_is_removed_all_days_that_cloth_was_worn_on_are_removed_as_well()
+    {
+        $cloth = Cloth::factory()->create();
+
+        Day::create([
+            'date' => '2021-11-14',
+            'cloth_id' => $cloth->id,
+            'ocassion' => 1
+        ]);
+
+        $cloth->delete();
+
+        $this->assertCount(0, Day::all());
+    }
 }

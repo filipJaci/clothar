@@ -19,7 +19,7 @@ class CreateDaysTable extends Migration
             $table->id();
             $table->timestamps();
             $table->date('date');
-            $table->foreignIdFor(Cloth::class)->constrained('clothes');
+            $table->foreignIdFor(Cloth::class)->constrained('clothes')->onDelete('cascade');
             $table->integer('ocassion');
         });
     }
