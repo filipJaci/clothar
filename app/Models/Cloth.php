@@ -6,6 +6,8 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Carbon\Carbon;
 
+use App\Models\Day;
+
 class Cloth extends Model
 {
     use HasFactory;
@@ -34,6 +36,14 @@ class Cloth extends Model
     public function setStatusAttribute($value)
     {
         $this->attributes['status'] = $value === null ? 1 : $value;
+    }
+
+    /**
+     * Get the days cloth was worn on.
+     */
+    public function days()
+    {
+        return $this->hasMany(Day::class);
     }
 
 }
