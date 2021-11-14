@@ -92,8 +92,13 @@ class ClothManagmentTest extends TestCase
 
         $this->assertArrayHasKey('title', $response);
         $this->assertArrayHasKey('message', $response);
+        $this->assertArrayHasKey('write', $response);
+        $this->assertArrayHasKey('data', $response);
 
         $this->assertArrayHasKey('id', $response['data']);
+        $this->assertArrayHasKey('created_at', $response['data']);
+        $this->assertArrayHasKey('updated_at', $response['data']);
+        $this->assertArrayHasKey('status', $response['data']);
         $this->assertArrayHasKey('title', $response['data']);
         $this->assertArrayHasKey('description', $response['data']);
         $this->assertArrayHasKey('category', $response['data']);
