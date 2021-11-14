@@ -92,7 +92,7 @@ class DayTest extends TestCase
     }
 
     /** @test */
-    public function a_cloth_title_can_be_accessed_through_eloquent_relationship()
+    public function a_cloth_can_be_accessed_through_eloquent_relationship()
     {
         $cloth = Cloth::factory()->create();
 
