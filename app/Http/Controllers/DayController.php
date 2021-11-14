@@ -48,7 +48,12 @@ class DayController extends Controller
      */
     public function show(Day $day)
     {
-        //
+        return response()->json([
+            'title' => 'show day',
+            'message' => 'success',
+            'write' => false,
+            'data' => $day
+        ], 200);
     }
 
     /**

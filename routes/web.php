@@ -19,3 +19,4 @@ Route::get('/cloth/{cloth}', 'ClothController@show');
 Route::post('/day', 'DayController@store');
 Route::patch('/day/{day}', 'DayController@update');
 Route::delete('/day/{day}', 'DayController@destroy');
+Route::get('/day/{day}', 'DayController@show');

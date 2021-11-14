@@ -72,10 +72,35 @@ class DayManagmentTest extends TestCase
 
         $this->createDay();
 
-        $dayId = Day::first()->id;
-
-        $this->delete('/day/' . $dayId);
+        $this->delete('/day/' . Day::first()->id);
 
         $this->assertCount(0, Day::all());
+    }
+
+    /** @test */
+    public function a_day_can_be_shown()
+    {
+        $this->withoutExceptionHandling();
+
+        $this->createDay();
+
+        $response = $this->get('/day/' . Day::first()->id);
+
+        $response->assertOk();
+
+        $this->assertArrayHasKey('title', $response);
+        $this->assertArrayHasKey('message', $response);
+        $this->assertArrayHasKey('write', $response);
+        $this->assertArrayHasKey('data', $response);
+
+        $this->assertArrayHasKey('id', $response['data']);
+        $this->assertArrayHasKey('created_at', $response['data']);
+        $this->assertArrayHasKey('updated_at', $response['data']);
+
+        $this->assertArrayHasKey('cloth_id', $response['data']);
+        $this->assertInstanceOf(Cloth::class, Cloth::find($response['data']['id']));
+
+        $this->assertArrayHasKey('ocassion', $response['data']);
+    
     }
 }
