@@ -5,6 +5,8 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
+use App\Models\Cloth;
+
 class Day extends Model
 {
     use HasFactory;
@@ -16,4 +18,12 @@ class Day extends Model
         'created_at',
         'updated_at'
     ];
+
+    /**
+     * Get the cloth that was worn on the date.
+     */
+    public function cloth()
+    {
+        return $this->belongsTo(Cloth::class);
+    }
 }

@@ -30,7 +30,28 @@ class DayTest extends TestCase
     use RefreshDatabase;
 
     /** @test */
-    public function cloth_foreign_key_constraint_test()
+    public function a_cloth_id_field_is_required()
+    {
+
+        try
+        {
+            Day::create([
+                'date' => '2021-12-25',
+                'cloth_id' => null,
+                'ocassion' => 1
+            ]);
+        }
+
+        catch(QueryException $e)
+        {
+            $this->message =$e->errorInfo[2];
+        }
+
+        $this->assertEquals('NOT NULL constraint failed: days.cloth_id', $this->message);
+    }
+
+    /** @test */
+    public function a_cloth_id_is_foreign_key_constraned()
     {
 
         try
@@ -68,5 +89,19 @@ class DayTest extends TestCase
             $this->assertInstanceOf(InvalidFormatException::class, $e);;
         }
 
+    }
+
+    /** @test */
+    public function a_cloth_title_can_be_accessed_through_eloquent_relationship()
+    {
+        $cloth = Cloth::factory()->create();
+
+        $day = Day::create([
+            'date' => '2021-11-14',
+            'cloth_id' => $cloth->id,
+            'ocassion' => 1
+        ]);
+
+        $this->assertInstanceOf(Cloth::class, $day->cloth()->first());
     }
 }
