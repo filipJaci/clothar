@@ -77,5 +77,30 @@ class ClothManagmentTest extends TestCase
         $this->assertCount(0, Cloth::all());
 
      }
+
+
+     /** @test */
+     public function a_piece_of_cloth_can_be_showed()
+     {
+        $this->withoutExceptionHandling();
+
+        $this->insertCloth();
+
+        $response = $this->get('/cloth/' . Cloth::first()->id);
+
+        $response->assertOk();
+
+        $this->assertArrayHasKey('title', $response);
+        $this->assertArrayHasKey('message', $response);
+
+        $this->assertArrayHasKey('id', $response['data']);
+        $this->assertArrayHasKey('title', $response['data']);
+        $this->assertArrayHasKey('description', $response['data']);
+        $this->assertArrayHasKey('category', $response['data']);
+        $this->assertArrayHasKey('buy_at', $response['data']);
+        $this->assertArrayHasKey('buy_date', $response['data']);
+        $this->assertArrayHasKey('status', $response['data']);
+
+     }
      
 }

@@ -30,4 +30,14 @@ class ClothController extends Controller
             'write' => true,
         ], 200);
     }
+
+    public function show(Cloth $cloth)
+    {
+        return response()->json([
+            'title' => 'show Successful',
+            'message' => '',
+            'write' => false,
+            'data' => $cloth
+        ], 200);
+    }
 }
