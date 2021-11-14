@@ -14,14 +14,7 @@ class DayManagmentTest extends TestCase
 
     private function createClothAndGetId(){
 
-        return Cloth::create([
-            'title' => 'Short Sleeves shirt',
-            'description' => null,
-            'category' => null,
-            'buy_at' => null,
-            'buy_date' => null,
-            'status' => 1,
-        ])->id;
+        return Cloth::factory()->create()->id;
 
     }
 
@@ -54,15 +47,15 @@ class DayManagmentTest extends TestCase
 
         $this->createDay();
 
-        $dayId = Day::first()->id;
-
         $newClothId = $this->createClothAndGetId();
 
-        $this->patch('/day/' . $dayId, [
+        $response = $this->patch('/day/' . Day::first()->id, [
             'date' => '2022-01-01',
             'cloth_id' => $newClothId,
             'ocassion' => 2
         ]);
+
+        $response->assertOk();
 
         $updatedDay = Day::first();
 
