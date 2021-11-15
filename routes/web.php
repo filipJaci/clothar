@@ -11,12 +11,12 @@
 |
 */
 
-Route::post('/cloth', 'ClothController@store');
-Route::patch('/cloth/{cloth}', 'ClothController@update');
-Route::delete('/cloth/{cloth}', 'ClothController@destroy');
-Route::get('/cloth/{cloth}', 'ClothController@show');
+Route::post('/clothes', 'ClothController@store');
+Route::patch('/clothes/{cloth}', 'ClothController@update');
+Route::delete('/clothes/{cloth}', 'ClothController@destroy');
+Route::get('/clothes/{cloth}', 'ClothController@show');
 
-Route::post('/day', 'DayController@store');
-Route::patch('/day/{day}', 'DayController@update');
-Route::delete('/day/{day}', 'DayController@destroy');
-Route::get('/day/{day}', 'DayController@show');
+Route::post('/days', 'DayController@store');
+Route::patch('/days/{day}', 'DayController@update');
+Route::delete('/days/{day}', 'DayController@destroy');
+Route::get('/days/{day}', 'DayController@show');
