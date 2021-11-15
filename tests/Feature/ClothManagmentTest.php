@@ -12,7 +12,7 @@ class ClothManagmentTest extends TestCase
 
     private function insertCloth(){
 
-        return $this->post('/clothes',[
+        return $this->post('/api/clothes',[
             'title' => 'Short Sleeves shirt',
             'description' => null,
             'category' => null,
@@ -45,7 +45,7 @@ class ClothManagmentTest extends TestCase
 
         $cloth = $this->insertCloth();
 
-        $this->patch('/clothes/' . Cloth::first()->id, [
+        $this->patch('api/clothes/' . Cloth::first()->id, [
             'title' => 'Long Sleves shirt',
             'description' => "new description",
             'category' => 1,
@@ -72,7 +72,7 @@ class ClothManagmentTest extends TestCase
 
         $this->insertCloth();
 
-        $response = $this->delete('/clothes/' . Cloth::first()->id);
+        $response = $this->delete('api/clothes/' . Cloth::first()->id);
         
         $this->assertCount(0, Cloth::all());
 
@@ -86,7 +86,7 @@ class ClothManagmentTest extends TestCase
 
         $this->insertCloth();
 
-        $response = $this->get('/clothes/' . Cloth::first()->id);
+        $response = $this->get('api/clothes/' . Cloth::first()->id);
 
         $response->assertOk();
 

@@ -20,7 +20,7 @@ class DayManagmentTest extends TestCase
 
     private function createDay()
     {
-        return $this->post('/days', [
+        return $this->post('api/days', [
             'date' => '2021-12-12',
             'cloth_id' => $this->createClothAndGetId(),
             'ocassion' => 1
@@ -49,7 +49,7 @@ class DayManagmentTest extends TestCase
 
         $newClothId = $this->createClothAndGetId();
 
-        $response = $this->patch('/days/' . Day::first()->id, [
+        $response = $this->patch('api/days/' . Day::first()->id, [
             'date' => '2022-01-01',
             'cloth_id' => $newClothId,
             'ocassion' => 2
@@ -72,7 +72,7 @@ class DayManagmentTest extends TestCase
 
         $this->createDay();
 
-        $this->delete('/days/' . Day::first()->id);
+        $this->delete('api/days/' . Day::first()->id);
 
         $this->assertCount(0, Day::all());
     }
@@ -84,7 +84,7 @@ class DayManagmentTest extends TestCase
 
         $this->createDay();
 
-        $response = $this->get('/days/' . Day::first()->id);
+        $response = $this->get('api/days/' . Day::first()->id);
 
         $response->assertOk();
 
