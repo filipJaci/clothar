@@ -11,12 +11,6 @@
 |
 */
 
-Route::post('/clothes', 'ClothController@store');
-Route::patch('/clothes/{cloth}', 'ClothController@update');
-Route::delete('/clothes/{cloth}', 'ClothController@destroy');
-Route::get('/clothes/{cloth}', 'ClothController@show');
-
-Route::post('/days', 'DayController@store');
-Route::patch('/days/{day}', 'DayController@update');
-Route::delete('/days/{day}', 'DayController@destroy');
-Route::get('/days/{day}', 'DayController@show');
+Route::get('{any}', function () {
+    return view('app');
+})->where('any', '.*');

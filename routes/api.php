@@ -14,6 +14,24 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-    return $request->user();
+// Route::middleware('auth:api')->get('user', function (Request $request) {
+//     return $request->user();
+// });
+
+Route::group(['prefix' => 'clothes'], function () {
+    Route::post('/', 'ClothController@store');
+    Route::patch('/{cloth}', 'ClothController@update');
+    Route::delete('/{cloth}', 'ClothController@destroy');
+    Route::get('/{cloth}', 'ClothController@show');
 });
+
+Route::group(['prefix' => 'days'], function () {
+    Route::post('/', 'DayController@store');
+    Route::patch('/{day}', 'DayController@update');
+    Route::delete('/{day}', 'DayController@destroy');
+    Route::get('/{day}', 'DayController@show');
+});
+
+
+
+
