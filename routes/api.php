@@ -19,6 +19,7 @@ use Illuminate\Support\Facades\Route;
 // });
 
 Route::group(['prefix' => 'clothes'], function () {
+    Route::get('/', 'ClothController@index');
     Route::post('/', 'ClothController@store');
     Route::patch('/{cloth}', 'ClothController@update');
     Route::delete('/{cloth}', 'ClothController@destroy');

@@ -23,6 +23,13 @@ class ClothManagmentTest extends TestCase
 
     }
 
+    private function checkResponseFormat($response){
+        $this->assertArrayHasKey('title', $response);
+        $this->assertArrayHasKey('message', $response);
+        $this->assertArrayHasKey('write', $response);
+        $this->assertArrayHasKey('data', $response);
+    }
+
     use RefreshDatabase;
 
     /** @test */
@@ -90,10 +97,7 @@ class ClothManagmentTest extends TestCase
 
         $response->assertOk();
 
-        $this->assertArrayHasKey('title', $response);
-        $this->assertArrayHasKey('message', $response);
-        $this->assertArrayHasKey('write', $response);
-        $this->assertArrayHasKey('data', $response);
+        $this->checkResponseFormat($response);
 
         $this->assertArrayHasKey('id', $response['data']);
         $this->assertArrayHasKey('created_at', $response['data']);
@@ -108,4 +112,19 @@ class ClothManagmentTest extends TestCase
 
      }
      
+     /** @test */
+     public function all_cloths_can_be_showed()
+    {
+        $this->withoutExceptionHandling();
+
+        $response = $this->insertCloth();
+
+        $response = $this->get('api/clothes/');
+
+        $response->assertOk();
+
+        $this->checkResponseFormat($response);
+      
+        $this->assertCount(1, $response['data']);
+    }
 }

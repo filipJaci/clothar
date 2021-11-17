@@ -34,10 +34,20 @@ class ClothController extends Controller
     public function show(Cloth $cloth)
     {
         return response()->json([
-            'title' => 'show Successful',
+            'title' => 'Show Successful',
             'message' => '',
             'write' => false,
             'data' => $cloth
+        ], 200);
+    }
+
+    public function index()
+    {
+        return response()->json([
+            'title' => 'Index Successful',
+            'message' => '',
+            'write' => false,
+            'data' => Cloth::all()
         ], 200);
     }
 }
