@@ -25,26 +25,8 @@
 
 <script>
 export default {
-  data(){
-    return{
-      clothes: []
-    }
-  },
-  methods: {
-    getClothes(){
-      this.axios.get('/api/clothes')
-      .then((response) => {
-        console.log(response);
-        this.clothes = response['data']['data'];
-      })
-      .catch((error) => {
-        console.log(error);
-      });
-    }
-  },
-
-  created(){
-    this.getClothes();
+  props: {
+    clothes: Array
   }
 }
 </script>

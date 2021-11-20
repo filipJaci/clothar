@@ -17,7 +17,7 @@ export const routes = [
     },
     {
         name: 'clothes.create',
-        path: '/clothes',
+        path: '/clothes/create',
         component: ClothCreate
     },
     {

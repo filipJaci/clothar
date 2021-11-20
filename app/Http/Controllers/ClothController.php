@@ -13,6 +13,13 @@ class ClothController extends Controller
     public function store(ClothStoreRequest $request)
     {
         Cloth::create($request->validated());
+
+        return response()->json([
+            'title' => 'Create Successful',
+            'message' => 'A piece of clothing has been created.',
+            'write' => false,
+            'data' => new \stdClass()
+        ], 200);
     }
 
     public function update(ClothStoreRequest $request, Cloth $cloth)
@@ -28,6 +35,7 @@ class ClothController extends Controller
             'title' => 'Delete Successful',
             'message' => 'A piece of clothing has been deleted.',
             'write' => true,
+            'data' => new \stdClass()
         ], 200);
     }
 

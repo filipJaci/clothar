@@ -41,6 +41,9 @@ class ClothManagmentTest extends TestCase
 
         $response->assertOk();
         $this->assertCount(1, Cloth::all());
+
+        $this->checkResponseFormat($response);
+        
     }
 
 
