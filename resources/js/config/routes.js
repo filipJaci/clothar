@@ -1,5 +1,6 @@
 import ClothIndex from '../views/Cloth/ClothIndex.vue';
 import ClothCreate from '../views/Cloth/ClothCreate.vue';
+import ClothEdit from '../views/Cloth/ClothEdit.vue';
 
 import DayIndex from '../views/Day/DayIndex.vue';
 import ExampleComponent from '../views/ExampleComponent.vue';
@@ -19,6 +20,12 @@ export const routes = [
         name: 'clothes.create',
         path: '/clothes/create',
         component: ClothCreate
+    },
+    {
+        name: 'clothes.edit',
+        path: '/clothes/:id/edit',
+        props: { cloth: Object },
+        component: ClothEdit
     },
     {
         name: 'days',

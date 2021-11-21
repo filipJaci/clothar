@@ -19,7 +19,7 @@ export default {
 
     data(){
         return{
-            clothes: []
+            clothes: [],
         }
     },
 
@@ -39,7 +39,7 @@ export default {
 
     },
 
-    created(){
+    beforeMount(){
         this.getClothes();
     }
 }
