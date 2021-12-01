@@ -197,7 +197,7 @@ export default {
 
     clothCreate(){
 
-      this.axios.post('/api/clothes', this.cloth)
+      this.axios.post('/clothes', this.cloth)
       .then((response) => {
         console.log(response);
       })
@@ -209,7 +209,7 @@ export default {
 
     clothUpdate(){
 
-      this.axios.patch('/api/clothes/' + this.cloth.id , this.cloth)
+      this.axios.patch('/clothes/' + this.cloth.id , this.cloth)
       .then((response) => {
         console.log(response);
       })
@@ -219,10 +219,6 @@ export default {
 
     },
 
-  },
-
-  created(){
-    console.log(this.cloth);
   }
 
 }

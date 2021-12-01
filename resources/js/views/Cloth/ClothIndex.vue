@@ -246,7 +246,7 @@ export default {
   methods: {
     clothDelete(id){
 
-      this.axios.delete('/api/clothes/' + id)
+      this.axios.delete('/clothes/' + id)
       .then((response) => {
         console.log(response);
         this.deleteAlert = false;

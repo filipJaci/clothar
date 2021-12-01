@@ -8,12 +8,19 @@ import App from './views/App.vue';
 import VueRouter from 'vue-router';
 import VueAxios from 'vue-axios';
 import axios from 'axios';
+
 import {routes} from './config/routes';
+import './config/axios';
 
 // vuetify
 import vuetify from './config/vuetify';
 // moment js
 import moment from 'moment';
+
+// sweet alert 2
+import VueSweetalert2 from 'vue-sweetalert2';
+import 'sweetalert2/dist/sweetalert2.min.css';
+import sweetAlert2 from './config/sweetAlert2';
 
 // vee-validate
 import {
@@ -28,6 +35,7 @@ window.Vue = Vue;
 Vue.use(VueRouter);
 Vue.use(VueAxios, axios);
 Vue.prototype.moment = moment;
+Vue.use(VueSweetalert2, sweetAlert2);
 
 Vue.component('ValidationProvider', ValidationProvider);
 Vue.component('ValidationObserver', ValidationObserver);

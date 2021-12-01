@@ -27,9 +27,9 @@ export default {
 
         getClothes(){
 
-            this.axios.get('/api/clothes')
+            this.axios.get('/clothes')
             .then((response) => {
-                this.clothes = response['data']['data'];
+                this.clothes = response['data'];
             })
             .catch((error) => {
                 console.log(error);

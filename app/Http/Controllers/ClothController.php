@@ -53,7 +53,7 @@ class ClothController extends Controller
     {
         return response()->json([
             'title' => 'Index Successful',
-            'message' => '',
+            'message' => 'Cloth index successful',
             'write' => false,
             'data' => Cloth::all()
         ], 200);
