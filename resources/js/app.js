@@ -12,6 +12,8 @@ import {routes} from './config/routes';
 
 // vuetify
 import vuetify from './config/vuetify';
+// moment js
+import moment from 'moment';
 
 // vee-validate
 import {
@@ -25,6 +27,7 @@ window.Vue = Vue;
 
 Vue.use(VueRouter);
 Vue.use(VueAxios, axios);
+Vue.prototype.moment = moment;
 
 Vue.component('ValidationProvider', ValidationProvider);
 Vue.component('ValidationObserver', ValidationObserver);

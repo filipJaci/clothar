@@ -68,14 +68,15 @@
 
               <template v-slot:activator="{ on, attrs }">
 
-                <v-text-field
-                  v-model="cloth.buy_date"
-                  label="Buy date"
-                  prepend-icon="mdi-calendar"
-                  readonly
-                  v-bind="attrs"
-                  v-on="on"
-                ></v-text-field>
+              <v-text-field
+                :value="formatedDate"
+                clearable
+                label="Date cloth was bought on"
+                readonly
+                v-bind="attrs"
+                v-on="on"
+                @click:clear="cloth.buy_date = null"
+              ></v-text-field>
 
               </template>
 
@@ -156,7 +157,14 @@ export default {
     return {
       modal: false,
       requestData: {},
+
     }
+  },
+
+  computed: {
+    formatedDate () {
+      return this.cloth.buy_date ? this.moment(this.cloth.buy_date).format('dddd, MMMM Do YYYY') : ''
+    },
   },
 
   methods: {
@@ -219,7 +227,3 @@ export default {
 
 }
 </script>
-
-<style>
-
-</style>
