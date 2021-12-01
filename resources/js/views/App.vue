@@ -4,17 +4,20 @@
       <v-main>
           <router-view :clothes = clothes></router-view>
       </v-main>
+      <Back></Back>
   </v-app>
 </template>
 
 <script>
 
 import Navigation from './Navigation';
+import Back from './Back';
 
 export default {
 
     components: {
         Navigation,
+        Back,
     },
 
     data(){

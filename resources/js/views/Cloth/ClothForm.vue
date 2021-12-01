@@ -129,14 +129,6 @@
           >
             Clear
           </v-btn>
-          
-          <v-btn
-            :to="{ name: 'clothes'}"
-            color="blue-grey"
-            dark
-          >
-            Back
-          </v-btn>
 
         </v-card-actions>       
 
