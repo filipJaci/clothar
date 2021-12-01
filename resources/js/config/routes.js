@@ -3,13 +3,12 @@ import ClothCreate from '../views/Cloth/ClothCreate.vue';
 import ClothEdit from '../views/Cloth/ClothEdit.vue';
 
 import DayIndex from '../views/Day/DayIndex.vue';
-import ExampleComponent from '../views/ExampleComponent.vue';
 
 export const routes = [
     {
         name: 'home',
         path: '/',
-        component: ExampleComponent
+        component: ClothIndex
     },
     {
         name: 'clothes',
