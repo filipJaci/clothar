@@ -3,8 +3,8 @@
       <Navigation></Navigation>
       <v-main>
           <router-view :clothes = clothes></router-view>
+          <Back></Back>
       </v-main>
-      <Back></Back>
   </v-app>
 </template>
 
@@ -42,8 +42,13 @@ export default {
 
     },
 
-    beforeMount(){
+    created(){
+        // Get clothes
         this.getClothes();
+
+        // Bus methods
+        EventBus.$on('getClothes', this.getClothes);
     }
+    
 }
 </script>

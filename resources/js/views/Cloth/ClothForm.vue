@@ -181,9 +181,9 @@ export default {
 
     clear(){
 
-      this.cloth.forEach(element => {
-        element.value = '';
-      });
+      for(let value in this.cloth){
+        this.cloth[value] = '';
+      }
       
     },
 
@@ -191,11 +191,10 @@ export default {
 
       this.axios.post('/clothes', this.cloth)
       .then((response) => {
-        console.log(response);
+        // run getClothes bus method on ClothIndex
+        EventBus.$emit('getClothes');
       })
-      .catch((error) => {
-          console.log(error);
-      });
+      .catch((error) => {});
 
     },
 
@@ -203,11 +202,10 @@ export default {
 
       this.axios.patch('/clothes/' + this.cloth.id , this.cloth)
       .then((response) => {
-        console.log(response);
+        // run getClothes bus method on ClothIndex
+        EventBus.$emit('getClothes');
       })
-      .catch((error) => {
-          console.log(error);
-      });
+      .catch((error) => {});
 
     },
 

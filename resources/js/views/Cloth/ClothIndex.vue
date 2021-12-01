@@ -248,8 +248,9 @@ export default {
 
       this.axios.delete('/clothes/' + id)
       .then((response) => {
-        console.log(response);
         this.deleteAlert = false;
+        // run getClothes bus method on ClothIndex
+        EventBus.$emit('getClothes');
       })
       .catch((error) => {
         console.log(error);

@@ -46,9 +46,13 @@ const router = new VueRouter({
     props: true
 });
 
+// Event Bus
+window.EventBus = new Vue();
+
 const app = new Vue({
     el: '#app',
     router: router,
     vuetify,
     render: h => h(App),
 });
+
