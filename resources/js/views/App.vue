@@ -3,21 +3,21 @@
       <Navigation></Navigation>
       <v-main>
           <router-view :clothes = clothes></router-view>
-          <Back></Back>
+          <ButtonBack></ButtonBack>
       </v-main>
   </v-app>
 </template>
 
 <script>
 
-import Navigation from './Navigation';
-import Back from './Back';
+import Navigation from './Components/Navigation';
+import ButtonBack from './Components/Buttons/ButtonBack';
 
 export default {
 
     components: {
         Navigation,
-        Back,
+        ButtonBack,
     },
 
     data(){

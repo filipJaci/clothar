@@ -1,34 +1,63 @@
 <template>
-    <div>
-        <div class="text-center mb-4">
-            <v-btn
-                color="primary"
-                @click="alert = !alert"
-            >
-                Toggle
-            </v-btn>
-        </div>
-        <v-alert
-            :value="alert"
-            color="pink"
-            dark
-            border="top"
-            icon="mdi-home"
-            transition="scale-transition"
-        >
-            Phasellus tempus. Fusce ac felis sit amet ligula pharetra condimentum. In dui magna, posuere eget, vestibulum et, tempor auctor, justo. Pellentesque posuere. Curabitur ligula sapien, tincidunt non, euismod vitae, posuere imperdiet, leo.
+  <div class="text-center my-3">
 
-            Phasellus nec sem in justo pellentesque facilisis. Phasellus magna. Cras risus ipsum, faucibus ut, ullamcorper id, varius ac, leo. In hac habitasse platea dictumst. Praesent turpis.
-        </v-alert>
+    <div
+      v-if="false"
+    >
+        <v-btn
+          color="success"
+          @click="wearClothes"
+        >
+          Wear Clothes
+        </v-btn>
     </div>
+
+    <div
+      v-else
+    >
+      <v-alert
+        border="top"
+        colored-border
+        type="info"
+        elevation="2"
+      >
+        There are no clothes in the Database, please insert a cloth to continue.
+      </v-alert>
+
+      <v-btn
+        color="success"
+        class="text-decoration-none"
+        :to="{ name: 'clothes.create' }"
+        x-large
+      >
+        Add New Cloth
+      </v-btn>
+
+    </div>
+
+  </div>
+
 </template>
 
 <script>
   export default {
+
+    props: { clothes: Array },
+
     data () {
       return {
         alert: true,
       }
     },
+
+    methods: {
+
+      wearClothes(){
+
+        console.log(1);
+
+      }
+      
+    }
   }
 </script>

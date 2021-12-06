@@ -119,6 +119,7 @@
             color="success"
             type="submit"
             :disabled="invalid"
+            x-large
           >
             Submit
           </v-btn>
@@ -126,6 +127,7 @@
           <v-btn
             @click="clear"
             color="warning"
+            x-large
           >
             Clear
           </v-btn>
