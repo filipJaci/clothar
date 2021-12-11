@@ -40,6 +40,9 @@ Vue.use(VueSweetalert2, sweetAlert2);
 Vue.component('ValidationProvider', ValidationProvider);
 Vue.component('ValidationObserver', ValidationObserver);
 
+// custom components
+import './config/components';
+
 const router = new VueRouter({
     mode: 'history',
     routes: routes,

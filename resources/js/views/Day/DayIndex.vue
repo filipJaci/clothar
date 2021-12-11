@@ -1,63 +1,51 @@
 <template>
   <div class="text-center my-3">
+    <!-- There are clothes in the DB -->
+    <div v-if="clothes.length > 0">
 
-    <div
-      v-if="false"
-    >
-        <v-btn
-          color="success"
-          @click="wearClothes"
-        >
-          Wear Clothes
-        </v-btn>
+      <ButtonCreate
+        key="clothes"
+        scenario="day"
+        origin="DayIndex"
+      />
+
     </div>
 
-    <div
-      v-else
-    >
-      <v-alert
-        border="top"
-        colored-border
+    <!-- There are no clothes in the DB -->
+    <div v-else>
+
+      <Message
         type="info"
-        elevation="2"
-      >
-        There are no clothes in the Database, please insert a cloth to continue.
-      </v-alert>
+        title="No Clothes found"
+        body="There is no existing data, please insert a cloth to continue."
+      />
 
-      <v-btn
-        color="success"
-        class="text-decoration-none"
-        :to="{ name: 'clothes.create' }"
-        x-large
-      >
-        Add New Cloth
-      </v-btn>
+      <ButtonCreate
+        key="noClothes"
+        scenario="cloth"
+        origin="DayIndex"
+      />
 
     </div>
-
   </div>
-
 </template>
 
 <script>
-  export default {
 
-    props: { clothes: Array },
+export default {
 
-    data () {
-      return {
-        alert: true,
-      }
+  props: { clothes: Array },
+
+  data() {
+    return {
+      alert: true,
+    };
+  },
+
+  methods: {
+    wearClothes() {
+      console.log(1);
     },
-
-    methods: {
-
-      wearClothes(){
-
-        console.log(1);
-
-      }
-      
-    }
-  }
+  },
+};
 </script>

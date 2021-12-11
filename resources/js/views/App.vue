@@ -1,54 +1,46 @@
 <template>
   <v-app>
-      <Navigation></Navigation>
-      <v-main>
-          <router-view :clothes = clothes></router-view>
-          <ButtonBack></ButtonBack>
-      </v-main>
+    <Navigation></Navigation>
+    <v-main>
+      <router-view :clothes="clothes"></router-view>
+      <ButtonBack/>
+    </v-main>
   </v-app>
 </template>
 
 <script>
 
-import Navigation from './Components/Navigation';
-import ButtonBack from './Components/Buttons/ButtonBack';
+import Navigation from "./Components/Navigation";
 
 export default {
+  components: {
+    Navigation
+  },
 
-    components: {
-        Navigation,
-        ButtonBack,
+  data() {
+    return {
+      clothes: [],
+    };
+  },
+
+  methods: {
+    getClothes() {
+      this.axios.get("/clothes")
+      .then((response) => {
+        this.clothes = response["data"];
+      })
+      .catch((error) => {
+        console.log(error);
+      });
     },
+  },
 
-    data(){
-        return{
-            clothes: [],
-        }
-    },
+  created() {
+    // Get clothes
+    this.getClothes();
 
-    methods: {
-
-        getClothes(){
-
-            this.axios.get('/clothes')
-            .then((response) => {
-                this.clothes = response['data'];
-            })
-            .catch((error) => {
-                console.log(error);
-            });
-
-        }
-
-    },
-
-    created(){
-        // Get clothes
-        this.getClothes();
-
-        // Bus methods
-        EventBus.$on('getClothes', this.getClothes);
-    }
-    
-}
+    // Bus methods
+    EventBus.$on("getClothes", this.getClothes);
+  },
+};
 </script>

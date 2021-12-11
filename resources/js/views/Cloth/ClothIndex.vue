@@ -1,11 +1,12 @@
 <template>
   <div>
 
-    <NoResults
+    <Message
       v-if="clothes.length === 0"
-      title = "There are no clothes available."
-      body = "Please insert cloth to continue."
-    ></NoResults>
+      type="info"
+      title="No Clothes found"
+      body="There is no existing data, please insert a cloth to continue."
+    ></Message>
 
     <v-data-iterator
       v-else-if="clothes.length > 0"
@@ -217,8 +218,8 @@
     </v-data-iterator>
 
     <ButtonCreate
-      text = 'Add new Cloth'
-      :link="{ name: 'clothes.create' }"
+      scenario = 'cloth'
+      origin = 'ClothIndex'
     ></ButtonCreate>
 
   </div>
@@ -226,12 +227,7 @@
 
 <script>
 
-import NoResults from '../Components/NoResults.vue';
-import ButtonCreate from '../Components/Buttons/ButtonCreate.vue';
-
 export default {
-
-  components: { NoResults, ButtonCreate },
 
   props: {
     clothes: Array
