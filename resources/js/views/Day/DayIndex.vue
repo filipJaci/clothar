@@ -202,15 +202,22 @@ import ClothIndex from '../Cloth/ClothIndex';
 
         // loop through all days
         days.forEach(day => {
+
+          // set formated date
+          let formatedDate = day.date.slice(0,10);
+
           // loop through all clothes worn on a day
           day.clothes.forEach(cloth => {
+
             // add to the worn array
             this.worn.push({
+
               // cloth name
               name: cloth.title,
               // start and end properties determine date when item was worn on
-              start: day.date,
-              end: day.date
+              start: formatedDate,
+              end: formatedDate
+              
             });
           });
         });

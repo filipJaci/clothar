@@ -28,13 +28,5 @@ class Day extends Model
         return $this->belongsToMany(Cloth::class);
 
     }
-
-    /**
-    * Formats date into the correct format whenever Day is being retrieved.
-    */
-    public function getDateAttribute($value){
-
-        return Carbon::parse($value)->toDateString();
-
-    }
+    
 }
