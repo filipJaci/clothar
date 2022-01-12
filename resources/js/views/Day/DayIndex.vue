@@ -197,6 +197,8 @@ import ClothIndex from '../Cloth/ClothIndex';
 
       // sets worn array
       setWorn(days){
+        // reset previous worn data
+        this.worn = [];
 
         // loop through all days
         days.forEach(day => {
@@ -214,6 +216,7 @@ import ClothIndex from '../Cloth/ClothIndex';
         });
 
       },
+
 
       viewDay ({ date }) {
         this.create.date = date;
