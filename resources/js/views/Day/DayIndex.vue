@@ -11,6 +11,8 @@
   <!-- display day index to wear clothes -->
   <div v-else-if="clothes.length > 0">
 
+
+
     <v-row class="fill-height">
 
       <v-col>
@@ -112,7 +114,7 @@
             ref="calendar"
             v-model="focus"
             color="primary"
-            :events="days"
+            :events="worn"
             :event-color="getEventColor"
             :type="type"
             interval-count=1
@@ -160,6 +162,9 @@ import ClothIndex from '../Cloth/ClothIndex';
     },
 
     data: () => ({
+      // array of clothes and dates they were worn on
+      worn: [],
+
       focus: '',
       type: 'month',
       typeToLabel: {
@@ -177,14 +182,38 @@ import ClothIndex from '../Cloth/ClothIndex';
       events: [],
       colors: ['blue', 'indigo', 'deep-purple', 'cyan', 'green', 'orange', 'grey darken-1'],
       names: ['Meeting', 'Holiday', 'PTO', 'Travel', 'Event', 'Birthday', 'Conference', 'Party'],
+
       
     }),
 
     mounted () {
+      // bus methods
+      EventBus.$on("setWorn", this.setWorn);
+
       // this.$refs.calendar.checkChange()
     },
 
     methods: {
+
+      // sets worn array
+      setWorn(days){
+
+        // loop through all days
+        days.forEach(day => {
+          // loop through all clothes worn on a day
+          day.clothes.forEach(cloth => {
+            // add to the worn array
+            this.worn.push({
+              // cloth name
+              name: cloth.title,
+              // start and end properties determine date when item was worn on
+              start: day.date,
+              end: day.date
+            });
+          });
+        });
+
+      },
 
       viewDay ({ date }) {
         this.create.date = date;
@@ -192,7 +221,7 @@ import ClothIndex from '../Cloth/ClothIndex';
       },
 
       getEventColor (event) {
-        return event.color
+        return 'primary';
       },
 
       setToday () {
