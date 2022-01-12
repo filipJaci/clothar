@@ -22,12 +22,6 @@ export const routes = [
         component: ClothCreate
     },
     {
-        name: 'clothes.edit',
-        path: '/clothes/:id/edit',
-        props: { cloth: Object },
-        component: ClothEdit
-    },
-    {
         name: 'days',
         path: '/days',
         component: DayIndex

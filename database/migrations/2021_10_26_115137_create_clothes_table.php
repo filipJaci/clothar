@@ -21,7 +21,7 @@ class CreateClothesTable extends Migration
             $table->string('category')->nullable();
             $table->string('buy_at')->nullable();
             $table->timestamp('buy_date')->nullable();
-            $table->string('status');
+            $table->string('status')->nullable();
         });
     }
 

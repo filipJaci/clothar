@@ -43,7 +43,18 @@
 
   </div>
 
-  <ClothForm v-else :cloth = cloth></ClothForm>
+  <!-- modal -->
+  <v-dialog
+    v-else
+    v-model="dialog"
+    class="overflow-visible"
+    max-width="600px"
+  > 
+    <!-- form for createing cloth -->
+    <ClothForm
+      :cloth = cloth
+    />
+  </v-dialog>
 
 </template>
 
@@ -70,19 +81,12 @@ export default {
     getCloth(){
 
       let id = this.$route.params.id;
-      
-      this.axios.get('/api/clothes/' + id)
+
+      this.axios.get('/clothes/' + id)
       .then((response) => {
-        this.cloth = response['data']['data'];
+        this.cloth = response['data'];
       })
-      .catch((error) => {
-        if(error.response.status === 404){
-          this.errorMessage = 'Invalid Cloth ID, this item may have been deleted previously.'
-        }
-        else{
-          this.errorMessage = 'Unkown error occured while trying to retreat Cloth info, please try again later.'
-        }
-      });
+      .catch((error) => {});
       
     }
   },

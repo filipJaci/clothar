@@ -6,6 +6,7 @@
     colored-border
     prominent
     elevation="2"
+    class="mt-2"
   >
 
     <h3>

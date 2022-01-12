@@ -10,21 +10,29 @@ use App\Http\Requests\ClothStoreRequest;
 class ClothController extends Controller
 {
 
-    public function store(ClothStoreRequest $request)
-    {
+    public function store(ClothStoreRequest $request){
+
         Cloth::create($request->validated());
 
         return response()->json([
             'title' => 'Create Successful',
             'message' => 'A piece of clothing has been created.',
-            'write' => false,
+            'write' => true,
             'data' => new \stdClass()
         ], 200);
     }
 
-    public function update(ClothStoreRequest $request, Cloth $cloth)
-    {
+    public function update(ClothStoreRequest $request, Cloth $cloth){
+        dd(1);
+        
         $cloth->update($request->validated());
+
+        return response()->json([
+            'title' => 'Update Successful',
+            'message' => 'A piece of clothing has been updated.',
+            'write' => true,
+            'data' => Cloth::all()
+        ], 200);
     }
 
     public function destroy(Cloth $cloth)

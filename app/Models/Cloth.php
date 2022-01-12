@@ -39,11 +39,11 @@ class Cloth extends Model
     }
 
     /**
-     * Get the days cloth was worn on.
+     * The days cloth was worn on.
      */
     public function days()
     {
-        return $this->hasMany(Day::class);
+        return $this->belongsToMany(Day::class);
     }
 
 }

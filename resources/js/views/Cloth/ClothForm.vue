@@ -165,7 +165,7 @@ export default {
 
     submit(){
 
-      if ('id' in this.cloth){
+      if (this.cloth.id !== null){
       
         this.clothUpdate();
 
@@ -212,6 +212,5 @@ export default {
     },
 
   }
-
 }
 </script>

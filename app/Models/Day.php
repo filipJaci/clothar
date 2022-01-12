@@ -20,10 +20,11 @@ class Day extends Model
     ];
 
     /**
-     * Get the cloth that was worn on the date.
+    * The clothes were worn on a date.
      */
-    public function cloth()
-    {
-        return $this->belongsTo(Cloth::class);
+    public function clothes(){
+
+        return $this->belongsToMany(Cloth::class);
+
     }
 }

@@ -4,8 +4,6 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-use App\Models\Cloth;
-
 class CreateDaysTable extends Migration
 {
     /**
@@ -19,8 +17,6 @@ class CreateDaysTable extends Migration
             $table->id();
             $table->timestamps();
             $table->date('date');
-            $table->foreignIdFor(Cloth::class)->constrained('clothes')->onDelete('cascade');
-            $table->integer('ocassion');
         });
     }
 

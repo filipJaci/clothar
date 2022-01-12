@@ -25,8 +25,8 @@ class DayStoreRequest extends FormRequest
     {
         return [
             'date' => 'required|date',
-            'cloth_id' => 'required|numeric|exists:clothes,id',
-            'ocassion' => 'required|numeric'
+            'clothes' => 'required|array|exists:clothes,id',
+            // 'ocassion' => 'required|numeric'
         ];
     }
 }

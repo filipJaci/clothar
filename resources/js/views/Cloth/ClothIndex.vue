@@ -1,13 +1,16 @@
 <template>
   <div>
-
+    <!-- there are no clothes in the DB -->
+    <!-- write an appropriate message -->
     <Message
       v-if="clothes.length === 0"
       type="info"
       title="No Clothes found"
-      body="There is no existing data, please insert a cloth to continue."
+      body="There are no clothes found, please insert a cloth to continue."
     ></Message>
 
+    <!-- there are clothes in the DB -->
+    <!-- display clothes -->
     <v-data-iterator
       v-else-if="clothes.length > 0"
       :items="clothes"
@@ -145,7 +148,7 @@
 
                   <v-btn
                     color="info"
-                    :to="{ name: 'clothes.edit', params: { id: cloth.id }, props: { cloth: cloth }}"
+                    @click="clothEdit(cloth)"
                   >
                     Edit
                   </v-btn>
@@ -216,18 +219,36 @@
     </div>
 
     </v-data-iterator>
-
+    
+    <!-- create a new piece of cloth -->
+    <!-- button -->
     <ButtonCreate
-      scenario = 'cloth'
-      origin = 'ClothIndex'
-    ></ButtonCreate>
+      text="Wear a Cloth"
+      @click.native="dialog = !dialog"
+    />
+    <!-- modal -->
+    <v-dialog
+      v-model="dialog"
+      class="overflow-visible"
+      max-width="600px"
+      @click:outside="resetClothObject()"
+    > 
+      <!-- form for createing cloth -->
+      <ClothForm
+        :cloth = cloth
+      />
+    </v-dialog>
 
   </div>
 </template>
 
 <script>
 
+import ClothForm from './ClothForm.vue'
+
 export default {
+
+  components: { ClothForm },
 
   props: {
     clothes: Array
@@ -235,12 +256,23 @@ export default {
 
   data(){
     return {
+      // toggles dialog
+      dialog: false,
+      // cloth object used for cloth create
+      cloth: {
+        id: null,
+        title: null,
+        description: null,
+        buy_date: null,
+        buy_location: null,
+      },
+      // sorting mechanisms
       dataIterator: {
         search: '',
         sortDesc: false,
         sortBy: 'title'
       },
-
+      // toggles delete dialog
       deleteAlert: false,
     }
   },
@@ -258,7 +290,28 @@ export default {
         console.log(error);
       });
 
-    }
+    },
+
+    // sets cloth edit
+    clothEdit(cloth){
+      // sets cloth data for edit
+      this.cloth = cloth;
+      // opens edit dialog
+      this.dialog = true;
+    },
+
+    // resets cloth object
+    resetClothObject(){
+      // sets cloth object values to null
+      this.cloth = {
+        id: null,
+        title: null,
+        description: null,
+        buy_date: null,
+        buy_location: null,
+      }
+
+    },
   }
 }
 </script>

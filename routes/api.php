@@ -27,12 +27,9 @@ Route::group(['prefix' => 'clothes'], function () {
 });
 
 Route::group(['prefix' => 'days'], function () {
-    Route::post('/', 'DayController@store');
-    Route::patch('/{day}', 'DayController@update');
-    Route::delete('/{day}', 'DayController@destroy');
-    Route::get('/{day}', 'DayController@show');
+    Route::get('/', 'ClothDayController@index');
+    Route::post('/', 'ClothDayController@store');
+    Route::patch('/{day}', 'ClothDayController@update');
+    Route::delete('/{day}', 'ClothDayController@destroy');
+    Route::get('/{day}', 'ClothDayController@show');
 });
-
-
-
-
