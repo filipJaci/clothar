@@ -57,6 +57,8 @@ export default {
 
     // sets days array
     setDays(days){
+      // sets days array
+      this.days = days;
       // run setWorn bus method on DayIndex
       EventBus.$emit('setWorn', days);
     },
@@ -71,6 +73,7 @@ export default {
     // bus methods
     EventBus.$on("getClothes", this.getClothes);
     EventBus.$on("setDays", this.setDays);
+    EventBus.$on("getDays", this.getDays);
   },
 };
 </script>

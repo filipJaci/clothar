@@ -58,8 +58,8 @@ class ClothDayController extends Controller
 
         return response()->json([
             'title' => 'Store Successful',
-            'message' => 'Cloth and Day Store Successful',
-            'write' => false,
+            'message' => 'Saved worn clothes.',
+            'write' => true,
             'data' => Day::with('clothes')->get()
         ], 200);
 
@@ -77,9 +77,9 @@ class ClothDayController extends Controller
 
         return response()->json([
             'title' => 'Delete Successful',
-            'message' => 'Cloth and Day Delete Successful',
-            'write' => false,
-            'data' => new \stdClass()
+            'message' => 'Removed worn clothes.',
+            'write' => true,
+            'data' => Day::with('clothes')->get()
         ], 200);
     }
 }

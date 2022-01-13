@@ -52,10 +52,8 @@ export default {
   props: {
     // all clothes in the DB
     clothes: Array,
-    // selected date
-    date: String,
-    // already worn clothes on the selected date
-    alreadyWorn: Array,
+    // day info
+    currentDayInformation: Object,
   },
 
   data(){
@@ -71,10 +69,10 @@ export default {
     // toggles if button submit should be enabled or not, if there were new changes
     buttonSubmit(){
       // number of clothes between previously worn and currently worn doesn't match up
-      return this.alreadyWorn.length !== this.worn.length || 
+      return this.currentDayInformation.worn.length !== this.worn.length || 
       // or
       // JSON stringified previously worn and currently worn don't match
-      JSON.stringify( this.alreadyWorn.sort() ) !== 
+      JSON.stringify( this.currentDayInformation.worn.sort() ) !== 
       JSON.stringify( this.worn.sort() );
     },
   },
@@ -82,7 +80,15 @@ export default {
   methods: {
     // sets modal date
     setModalTitle(){
-      this.modalTitle = "Clothes on:<br>"+this.moment(this.date).format('dddd, MMMM Do YYYY');
+      this.modalTitle = "Clothes on:<br>"+this.moment(this.currentDayInformation.date).format('dddd, MMMM Do YYYY');
+    },
+
+    // sets clothes worn on a date
+    setWorn(){
+      // pushes id of every cloth item worn on a date
+      this.currentDayInformation.worn.forEach(cloth_id => {
+        this.worn.push(cloth_id)
+      });
     },
 
     // handles click on a cloth
@@ -98,7 +104,6 @@ export default {
         // adds cloth as worn
         this.worn.push(cloth_id);
       }
-
     },
 
     // handles click on the enabled Submit button
@@ -118,10 +123,12 @@ export default {
 
     // deletes day from the DB
     dayDestroy(){
-      this.axios.delete('/days/' + this.day.id)
+      this.axios.delete('/days/' + this.currentDayInformation.id)
       .then((response) => {
         // run setDays bus method on DayIndex
         EventBus.$emit('setDays', response['data']);
+        // run closeViewDay bus method on DayIndex
+        EventBus.$emit('closeViewDay');
       })
       .catch((error) => {});
     },
@@ -129,12 +136,14 @@ export default {
     // store day data to the DB
     dayStore(){
       this.axios.post('/days', {
-        date: this.date,
+        date: this.currentDayInformation.date,
         clothes: this.worn,
       })
       .then((response) => {
         // run setDays bus method on DayIndex
         EventBus.$emit('setDays', response['data']);
+        // run closeViewDay bus method on DayIndex
+        EventBus.$emit('closeViewDay');
       })
       .catch((error) => {});
 
@@ -160,9 +169,17 @@ export default {
 
   },
 
-  created(){
+  beforeMount(){
+    // set modal title
     this.setModalTitle();
-  }
+    // set worn clothes
+    this.setWorn();
+  },
+
+  beforeDestroy(){
+    // empties worn
+    this.worn = [];
+  },
 }
 </script>
 

@@ -119,7 +119,7 @@
             :type="type"
             interval-count=1
             interval-height="auto"
-            @click:event="showEvent"
+            @click:event="viewDay"
             @click:more="viewDay"
             @click:date="viewDay"
             @change="updateRange"
@@ -132,14 +132,16 @@
     </v-row>
 
     <v-dialog
-      v-model="day"
+      v-if="modal"
+      v-model="modal"
+      persistent
+      @click:outside="closeViewDay()"
       width="500"
     > 
 
       <DayForm
-        :clothes="clothes"
-        :date="create.date"
-        :alreadyWorn="create.worn"
+        :clothes = clothes
+        :currentDayInformation = currentDayInformation
       />
       
     </v-dialog>
@@ -158,12 +160,23 @@ import ClothIndex from '../Cloth/ClothIndex';
 
     props: {
       clothes: Array,
-      days: Array,
+      days: Array
     },
 
     data: () => ({
       // array of clothes and dates they were worn on
       worn: [],
+      // toggles DayCreateEdit modal
+      modal: false,
+      // object containing information used for DayCreateEdit modal
+      currentDayInformation: {
+        // id of date in the DB, used for deletions
+        id: '',
+        // date on which the cloth(es) were worn
+        date: '',
+        // cloth(es) worn on a date
+        worn: [],
+      },
 
       focus: '',
       type: 'month',
@@ -172,12 +185,9 @@ import ClothIndex from '../Cloth/ClothIndex';
         week: 'Week',
       },
 
-      day: false,
 
-      create: {
-        date: '',
-        worn: [],
-      },
+
+
       
       events: [],
       colors: ['blue', 'indigo', 'deep-purple', 'cyan', 'green', 'orange', 'grey darken-1'],
@@ -186,17 +196,12 @@ import ClothIndex from '../Cloth/ClothIndex';
       
     }),
 
-    mounted () {
-      // bus methods
-      EventBus.$on("setWorn", this.setWorn);
-
-      // this.$refs.calendar.checkChange()
-    },
-
     methods: {
 
       // sets worn array
       setWorn(days){
+
+        console.log(days);
         // reset previous worn data
         this.worn = [];
 
@@ -224,10 +229,45 @@ import ClothIndex from '../Cloth/ClothIndex';
 
       },
 
+      // views day
+      viewDay ({ date, day }) {
+        // sets assigned date
+        this.currentDayInformation.date = date || day.date;
 
-      viewDay ({ date }) {
-        this.create.date = date;
-        this.day = true;
+        // itterates through all dates
+        for(let i = 0; i < this.days.length; i++){
+
+          // looks for assigned date
+          // slice removes additional timestamp data
+          if(this.currentDayInformation.date === this.days[i].date.slice(0, 10)){
+            // sets date id
+            this.currentDayInformation.id = this.days[i].id;
+
+            // itterates through all clothes worn on a date
+            this.days[i].clothes.forEach(cloth => {
+
+              // adds cloth id to the worn array
+              this.currentDayInformation.worn.push(cloth.id);
+
+            });
+            // stops for loop
+            break;
+          }
+        }
+
+        // toggles modal
+        this.modal = true;
+      },
+      
+      // closes day
+      closeViewDay(){
+        // toggles modal
+        this.modal = false;
+        // resets current day information
+        this.currentDayInformation = {
+          date: '',
+          worn: [],
+        };
       },
 
       getEventColor (event) {
@@ -297,6 +337,17 @@ import ClothIndex from '../Cloth/ClothIndex';
       wearClothes() {
         console.log(1);
       },
+    },
+
+    beforeMount() {
+      // set worn array
+      this.setWorn(this.days);
+
+      // bus methods
+      EventBus.$on("setWorn", this.setWorn);
+      EventBus.$on("closeViewDay", this.closeViewDay);
+      
+      // this.$refs.calendar.checkChange()
     },
   }
 </script>
