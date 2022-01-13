@@ -135,8 +135,9 @@ export default {
 
     // store day data to the DB
     dayStore(){
+      
       this.axios.post('/days', {
-        date: this.currentDayInformation.date,
+        date: this.currentDayInformation.backEndDate,
         clothes: this.worn,
       })
       .then((response) => {

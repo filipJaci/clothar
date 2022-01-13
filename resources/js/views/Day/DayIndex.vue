@@ -172,8 +172,11 @@ import ClothIndex from '../Cloth/ClothIndex';
       currentDayInformation: {
         // id of date in the DB, used for deletions
         id: '',
-        // date on which the cloth(es) were worn
+        // date on which the cloth(es) were worn, used on Front End
         date: '',
+        // Back End date format
+        // used for Laravel's firstOrCreate
+        backEndDate: '',
         // cloth(es) worn on a date
         worn: [],
       },
@@ -200,8 +203,7 @@ import ClothIndex from '../Cloth/ClothIndex';
 
       // sets worn array
       setWorn(days){
-
-        console.log(days);
+        
         // reset previous worn data
         this.worn = [];
 
@@ -237,10 +239,10 @@ import ClothIndex from '../Cloth/ClothIndex';
         // itterates through all dates
         for(let i = 0; i < this.days.length; i++){
 
-          // looks for assigned date
-          // slice removes additional timestamp data
+          // looks for assigned date among existing days
+          // slice removes additional backEndDate data
           if(this.currentDayInformation.date === this.days[i].date.slice(0, 10)){
-            // sets date id
+            // sets day id
             this.currentDayInformation.id = this.days[i].id;
 
             // itterates through all clothes worn on a date
@@ -255,6 +257,9 @@ import ClothIndex from '../Cloth/ClothIndex';
           }
         }
 
+        // sets Back End date
+        this.currentDayInformation.backEndDate = this.currentDayInformation.date+' 00:00:00';
+
         // toggles modal
         this.modal = true;
       },
@@ -266,6 +271,7 @@ import ClothIndex from '../Cloth/ClothIndex';
         // resets current day information
         this.currentDayInformation = {
           date: '',
+          timestamp: '',
           worn: [],
         };
       },

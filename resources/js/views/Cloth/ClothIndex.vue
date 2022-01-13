@@ -223,7 +223,7 @@
     <!-- create a new piece of cloth -->
     <!-- button -->
     <ButtonCreate
-      text="Wear a Cloth"
+      text="Insert new Cloth"
       @click.native="dialog = !dialog"
     />
     <!-- modal -->
