@@ -3,6 +3,10 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
+use App\Http\Controllers\API\UserController;
+use App\Http\Controllers\API\ClothController;
+use App\Http\Controllers\API\ClothDayController;
+
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -14,22 +18,25 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-// Route::middleware('auth:api')->get('user', function (Request $request) {
-//     return $request->user();
-// });
+// auth routes
+Route::post('login', [UserController::class, 'login']);
+Route::post('register', [UserController::class, 'register']);
+Route::post('logout', [UserController::class, 'logout'])->middleware('auth:sanctum');
 
-Route::group(['prefix' => 'clothes'], function () {
-    Route::get('/', 'ClothController@index');
-    Route::post('/', 'ClothController@store');
-    Route::patch('/{cloth}', 'ClothController@update');
-    Route::delete('/{cloth}', 'ClothController@destroy');
-    Route::get('/{cloth}', 'ClothController@show');
+// clothes
+Route::group(['prefix' => 'clothes', 'middleware' => 'auth:sanctum'], function () {
+    Route::get('/', [ClothController::class, 'index']);
+    Route::post('/', [ClothController::class, 'store']);
+    Route::patch('/{cloth}', [ClothController::class, 'update']);
+    Route::delete('/{cloth}', [ClothController::class, 'destroy']);
+    Route::get('/{cloth}', [ClothController::class, 'show']);
 });
 
-Route::group(['prefix' => 'days'], function () {
-    Route::get('/', 'ClothDayController@index');
-    Route::post('/', 'ClothDayController@store');
-    Route::patch('/{day}', 'ClothDayController@update');
-    Route::delete('/{day}', 'ClothDayController@destroy');
-    Route::get('/{day}', 'ClothDayController@show');
+// days
+Route::group(['prefix' => 'days', 'middleware' => 'auth:sanctum'], function () {
+    Route::get('/', [ClothDayController::class, 'index']);
+    Route::post('/', [ClothDayController::class, 'store']);
+    Route::patch('/{day}', [ClothDayController::class, 'update']);
+    Route::delete('/{day}', [ClothDayController::class, 'destroy']);
+    Route::get('/{day}', [ClothDayController::class, 'show']);
 });

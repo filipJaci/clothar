@@ -47,6 +47,8 @@
 </template>
 
 <script>
+import { mapActions } from 'vuex'
+
 export default {
 
   props: {
@@ -78,6 +80,12 @@ export default {
   },
 
   methods: {
+    // registers a Vuex method
+    ...mapActions({
+      // saveDays refers to saveDays method found in days
+      saveDays: 'days/saveDays'
+    }),
+
     // sets modal date
     setModalTitle(){
       this.modalTitle = "Clothes on:<br>"+this.moment(this.currentDayInformation.date).format('dddd, MMMM Do YYYY');
@@ -125,10 +133,10 @@ export default {
     dayDestroy(){
       this.axios.delete('/days/' + this.currentDayInformation.id)
       .then((response) => {
-        // run setDays bus method on DayIndex
-        EventBus.$emit('setDays', response['data']);
-        // run closeViewDay bus method on DayIndex
-        EventBus.$emit('closeViewDay');
+        // run Vuex method saveDays method
+        this.saveDays(response['data']);
+        // run handleDaySave bus method on DayIndex
+        EventBus.$emit('handleDaySave');
       })
       .catch((error) => {});
     },
@@ -141,31 +149,19 @@ export default {
         clothes: this.worn,
       })
       .then((response) => {
-        // run setDays bus method on DayIndex
-        EventBus.$emit('setDays', response['data']);
-        // run closeViewDay bus method on DayIndex
-        EventBus.$emit('closeViewDay');
+        // run Vuex method saveDays method
+        this.saveDays(response['data']);
+        // run handleDaySave bus method on DayIndex
+        EventBus.$emit('handleDaySave');
       })
       .catch((error) => {});
 
     },
-
+    
+    // clears view Day form
     clear(){
-      // resets selected clothes
+      // resets worn array
       this.worn = [];
-
-      // for(let value in this.day){
-      //   this.day[value] = '';
-      // }
-      
-    },
-
-
-
-    dayUpdate(){
-
-
-
     },
 
   },

@@ -143,7 +143,11 @@
 </template>
 
 <script>
+import { mapActions } from 'vuex';
+
 export default {
+
+  name: 'cloth.form',
 
   props: { cloth: Object },
 
@@ -162,6 +166,11 @@ export default {
   },
 
   methods: {
+    // registers a Vuex method
+    ...mapActions({
+      // saveClothes refers to saveClothes method found in clothes
+      saveClothes: 'clothes/saveClothes'
+    }),
 
     submit(){
 
@@ -179,8 +188,6 @@ export default {
 
     },
 
-    
-
     clear(){
 
       for(let value in this.cloth){
@@ -193,8 +200,10 @@ export default {
 
       this.axios.post('/clothes', this.cloth)
       .then((response) => {
-        // run getClothes bus method on ClothIndex
-        EventBus.$emit('getClothes');
+        // save clothes to Vuex store
+        this.saveClothes(response['data']);
+        // run handleClothSave Bus method on ClothIndex
+        EventBus.$emit('handleClothSave');
       })
       .catch((error) => {});
 
@@ -204,8 +213,10 @@ export default {
 
       this.axios.patch('/clothes/' + this.cloth.id , this.cloth)
       .then((response) => {
-        // run getClothes bus method on ClothIndex
-        EventBus.$emit('getClothes');
+        // save clothes to Vuex store
+        this.saveClothes(response['data']);
+        // run handleClothSave Bus method on ClothIndex
+        EventBus.$emit('handleClothSave');
       })
       .catch((error) => {});
 

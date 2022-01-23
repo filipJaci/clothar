@@ -3,6 +3,7 @@
 namespace App\Exceptions;
 
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
+use Illuminate\Validation\ValidationException;
 use Throwable;
 
 class Handler extends ExceptionHandler
@@ -34,8 +35,30 @@ class Handler extends ExceptionHandler
      */
     public function register()
     {
-        $this->reportable(function (Throwable $e) {
-            //
-        });
+      // failed login check
+      $this->renderable(function (\Illuminate\Auth\AuthenticationException $e, $request) {
+        if ($request->is('api/*')) {
+          return response()->json([
+            // title
+            'title' => 'Login check',
+            // message
+            'message' => 'Login check failed',
+            // message should be displayed
+            'write' => false,
+            // additional data
+            'data' => null
+          ], 401);
+        }
+      });
+    }
+
+    protected function invalidJson($request, ValidationException $exception){
+      
+      return response()->json([
+        'title' => 'Data validation error',
+        'message' => $exception->errors(),
+        'write' => true,
+        'data' => new \stdClass()
+      ], $exception->status);
     }
 }

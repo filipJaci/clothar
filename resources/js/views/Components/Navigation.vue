@@ -41,6 +41,12 @@
           >
             Days
           </v-list-item>
+
+          <v-list-item
+            @click="logout()"
+          >
+            logout
+          </v-list-item>
           
         </v-list-item-group>
       </v-list>
@@ -50,16 +56,57 @@
 
 
 <script>
-  export default {
-    data: () => ({
-      drawer: false,
-      group: null,
+import { mapActions } from 'vuex';
+
+export default {
+  data: () => ({
+    drawer: false,
+    group: null,
+  }),
+
+  watch: {
+    group () {
+      this.drawer = false
+    },
+  },
+
+  methods: {
+    // registers a Vuex method
+    ...mapActions({
+      // logout refers to logout method found in auth
+      authLogout: 'auth/logout',
+      // saveClothes refers to saveClothes method found in clothes
+      removeClothes: 'clothes/removeClothes',
+      // removeDays refers to removeDays method found in days
+      removeDays: 'days/removeDays'
     }),
 
-    watch: {
-      group () {
-        this.drawer = false
-      },
-    },
+    // logsout user
+    logout() {
+
+      // get CSRF cookie
+      this.axios.get('/sanctum/csrf-cookie').then(response => {
+
+        // logout
+        this.axios.post('logout')
+        // success
+        .then(response => {
+          // run Vuex methods
+          this.authLogout();
+          this.removeClothes();
+          this.removeDays();
+          // run handleLogout bus method on App
+          EventBus.$emit('handleLogout');
+          // push to login page
+          this.$router.push('login');
+        })
+        // there was an error with the request
+        .catch(function (error) {
+          console.error(error);
+        });
+
+      });
+    }
   }
+}
 </script>

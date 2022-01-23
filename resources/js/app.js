@@ -5,11 +5,9 @@ import Vue from 'vue';
 import App from './views/App.vue';
 
 // vue router and axios
-import VueRouter from 'vue-router';
+import router from './config/router';
 import VueAxios from 'vue-axios';
 import axios from 'axios';
-
-import {routes} from './config/routes';
 import './config/axios';
 
 // vuetify
@@ -28,11 +26,11 @@ import {
     ValidationObserver
 } from 'vee-validate/dist/vee-validate.full';
 
-
+// vuex
+import store from './store'
 
 window.Vue = Vue;
 
-Vue.use(VueRouter);
 Vue.use(VueAxios, axios);
 Vue.prototype.moment = moment;
 Vue.use(VueSweetalert2, sweetAlert2);
@@ -43,12 +41,6 @@ Vue.component('ValidationObserver', ValidationObserver);
 // custom components
 import './config/components';
 
-const router = new VueRouter({
-    mode: 'history',
-    routes: routes,
-    props: true
-});
-
 // Event Bus
 window.EventBus = new Vue();
 
@@ -57,5 +49,6 @@ const app = new Vue({
     router: router,
     vuetify,
     render: h => h(App),
+    store:store
 });
 

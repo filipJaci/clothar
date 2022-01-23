@@ -1,11 +1,12 @@
 <template>
-
   <!-- there are no clothes in the DB -->
-  <!-- display clothes index to add clothes -->
-  <ClothIndex
+  <!-- write an appropriate message -->
+  <Message
     v-if="clothes.length === 0"
-    :clothes = clothes
-  />
+    type="info"
+    title="No Clothes found"
+    body="There are no clothes found, please insert a cloth to continue."
+  ></Message>
 
   <!-- there are clothes in the DB -->
   <!-- display day index to wear clothes -->
@@ -150,7 +151,6 @@
 </template>
 
 <script>
-
 import DayForm from './DayForm';
 import ClothIndex from '../Cloth/ClothIndex';
 
@@ -158,12 +158,13 @@ import ClothIndex from '../Cloth/ClothIndex';
 
     components: { DayForm, ClothIndex },
 
-    props: {
-      clothes: Array,
-      days: Array
-    },
+    props: {},
 
     data: () => ({
+      // Clothes array
+      clothes: [],
+      // Days Array
+      days: [],
       // array of clothes and dates they were worn on
       worn: [],
       // toggles DayCreateEdit modal
@@ -200,15 +201,27 @@ import ClothIndex from '../Cloth/ClothIndex';
     }),
 
     methods: {
+      // load Clothes
+      loadClothes(){
+        // load Clothes
+        this.clothes = this.$store.state.clothes.clothes;
+      },
+
+      // load Days
+      loadDays(){
+        // load Days
+        this.days = this.$store.state.days.days;
+        // set worn
+        this.setWorn();
+      },
 
       // sets worn array
-      setWorn(days){
-        
+      setWorn(){
         // reset previous worn data
         this.worn = [];
 
         // loop through all days
-        days.forEach(day => {
+        this.days.forEach(day => {
 
           // set formated date
           let formatedDate = day.date.slice(0,10);
@@ -264,7 +277,7 @@ import ClothIndex from '../Cloth/ClothIndex';
         this.modal = true;
       },
       
-      // closes day
+      // closes view Day
       closeViewDay(){
         // toggles modal
         this.modal = false;
@@ -274,6 +287,14 @@ import ClothIndex from '../Cloth/ClothIndex';
           timestamp: '',
           worn: [],
         };
+      },
+
+      // handle Day save
+      handleDaySave(){
+        // reload Days
+        this.loadDays();
+        // close view Day
+        this.closeViewDay();
       },
 
       getEventColor (event) {
@@ -345,15 +366,14 @@ import ClothIndex from '../Cloth/ClothIndex';
       },
     },
 
-    beforeMount() {
-      // set worn array
-      this.setWorn(this.days);
+    mounted() {
+      // load Clothes
+      this.loadClothes();
+      // load Days
+      this.loadDays();
 
       // bus methods
-      EventBus.$on("setWorn", this.setWorn);
-      EventBus.$on("closeViewDay", this.closeViewDay);
-      
-      // this.$refs.calendar.checkChange()
+      EventBus.$on("handleDaySave", this.handleDaySave);
     },
   }
 </script>

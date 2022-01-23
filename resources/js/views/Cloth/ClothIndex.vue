@@ -250,12 +250,10 @@ export default {
 
   components: { ClothForm },
 
-  props: {
-    clothes: Array
-  },
-
   data(){
     return {
+      // clothes array
+      clothes: [],
       // toggles dialog
       dialog: false,
       // cloth object used for cloth create
@@ -278,13 +276,18 @@ export default {
   },
 
   methods: {
+    // load Clothes
+    loadClothes(){
+      // load Clothes
+      this.clothes = this.$store.state.clothes.clothes;
+    },
+
+    // deletes Cloth
     clothDelete(id){
 
       this.axios.delete('/clothes/' + id)
       .then((response) => {
         this.deleteAlert = false;
-        // run getClothes bus method on ClothIndex
-        EventBus.$emit('getClothes');
       })
       .catch((error) => {
         console.log(error);
@@ -292,12 +295,30 @@ export default {
 
     },
 
-    // sets cloth edit
+    // edits Cloth
     clothEdit(cloth){
       // sets cloth data for edit
-      this.cloth = cloth;
+      for (const key in this.cloth) {
+        this.cloth[key] = cloth[key];
+      }
       // opens edit dialog
       this.dialog = true;
+    },
+
+    // hadles Cloth save
+    handleClothSave(){
+      // reload Clothes
+      this.loadClothes();
+      // close Cloth modal
+      this.closeClothModal();
+    },
+
+    // closes Cloth modal
+    closeClothModal(){
+      // close Cloth modal
+      this.dialog = false;
+      // reset Cloth object
+      this.resetClothObject();
     },
 
     // resets cloth object
@@ -310,8 +331,16 @@ export default {
         buy_date: null,
         buy_location: null,
       }
-
     },
-  }
+  },
+
+  mounted(){
+    // load clothes from Vuex store
+    this.loadClothes();
+
+    // bus methods
+    EventBus.$on("closeClothModal", this.closeClothModal);
+    EventBus.$on("handleClothSave", this.handleClothSave);
+  },
 }
 </script>
