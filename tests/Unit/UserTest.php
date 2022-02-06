@@ -15,26 +15,20 @@ class UserTest extends TestCase
 
   /** @test */
   public function a_user_can_be_added(){
-
-    // create a user
+    // Create a User.
     User::factory()->create();
-
-    // see if the number of users in the DB is 1
+    // There is 1 User in the DB.
     $this->assertCount(1, User::all());
   }
 
   /** @test */
   public function a_user_can_be_edited(){
-
-    // create a user
-    User::factory()->create();
-
-    // get a user
-    $user = User::first();
-
+    // Create a User and store the response.
+    $user = User::factory()->create();
+    // Create a timestamp 1 year into the future.
     $newDate = date('Y-m-d', strtotime('+1 year'));
 
-    // edit user
+    // Edit the user.
     $user->name = 'John Doe';
     $user->email = 'john.doe@mail.com';
     $user->email_verified_at = $newDate;
@@ -42,13 +36,13 @@ class UserTest extends TestCase
     $user->created_at = $newDate;
     $user->updated_at = $newDate;
 
-    // save changes
+    // Save changes made to the User.
     $user->save();
 
-    // get user again
+    // Get user again.
     $user = User::first();
 
-    // validate changes
+    // Validate changes.
     $this->assertEquals('John Doe', $user->name);
     $this->assertEquals('john.doe@mail.com', $user->email);
     $this->assertEquals(new DateTime($newDate), $user->email_verified_at);
@@ -59,16 +53,12 @@ class UserTest extends TestCase
 
   /** @test */
   public function a_user_can_be_deleted(){
+    // Create a User and store the response.
+    $user = User::factory()->create();
 
-    // create a user
-    User::factory()->create();
-
-    // get a user
-    $user = User::first();
-
-    // delete a user
+    // Delete the created User.
     $user->delete();
-
+    // There are no Users in the DB.
     $this->assertCount(0, User::all());
   }
 }

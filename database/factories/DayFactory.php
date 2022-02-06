@@ -5,6 +5,8 @@ namespace Database\Factories;
 use App\Models\Day;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
+use App\Models\User;
+
 class DayFactory extends Factory
 {
     /**
@@ -21,8 +23,9 @@ class DayFactory extends Factory
      */
     public function definition()
     {
-        return [
-            'date' => $this->faker->dateTimeThisMonth()->format('Y-m-d H:i:s'),
-        ];
+      return [
+        'date' => $this->faker->dateTimeThisMonth()->format('Y-m-d H:i:s'),
+        'user_id' => function(){ return User::factory()->create()->id; }
+      ];
     }
 }

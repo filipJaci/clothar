@@ -11,60 +11,46 @@ use App\Models\Day;
 
 class ClothTest extends TestCase
 {
-    private $message;
+  private $message;
 
-    use RefreshDatabase;
+  use RefreshDatabase;
 
-    /** @test */
-    public function a_piece_of_cloth_cannot_be_added_without_title()
-    {
-
-        try
-        {
-            Cloth::create([
-                'title' => null,
-                'description' => null,
-                'category' => null,
-                'buy_at' => null,
-                'buy_date' => null,
-                'status' => null,
-            ]);
-        }
-        
-        catch(QueryException $e)
-        {
-            $this->message = $e->errorInfo[2];
-        }
-
-        $this->assertEquals('NOT NULL constraint failed: clothes.title', $this->message);
+  /** @test */
+  public function a_piece_of_cloth_cannot_be_added_without_title(){
+    // attempt to
+    try{
+      // create a Cloth
+      Cloth::create([
+        // without title
+        'title' => null,
+        'description' => null,
+        'category' => null,
+        'buy_at' => null,
+        'buy_date' => null,
+        'status' => null,
+      ]);
     }
 
-    /** @test */
-    public function a_day_can_be_accessed_through_eloquent_relationship()
-    {
-        $cloth = Cloth::factory()->create();
-
-        $dayId = Day::factory()->create()->id;
-
-        $cloth->days()->attach([$dayId => ['ocassion' => 1]]);
-
-        $this->assertInstanceOf(Day::class, $cloth->days()->first());
+    // If creation fails:
+    // Catch error as QueryException.
+    catch(QueryException $e){
+      // Get eror message out of error.
+      $this->message = $e->errorInfo[2];
     }
+    // Check if it's the correct error message.
+    $this->assertEquals('NOT NULL constraint failed: clothes.title', $this->message);
+  }
 
-    /** @test */
-    public function if_a_cloth_is_removed_all_days_that_cloth_was_worn_on_are_removed_as_well(){
-
-        $cloth = Cloth::factory()->create();
-
-        $day = Day::factory()->create();
-
-        $cloth->days()->attach([$day->id => ['ocassion' => 1]]);
-
-        $this->assertEquals(1, $day->clothes()->count());
-
-        $cloth->delete();
-
-        $this->assertEquals(0, $day->clothes()->count());
-
-    }
+  /** @test */
+  public function a_day_can_be_accessed_through_eloquent_relationship(){
+    // Create a new Cloth and store response.
+    $cloth = Cloth::factory()->create();
+    // Create a new Day and store its id.
+    $dayId = Day::factory()->create()->id;
+    // Attach Cloth to Day.
+    // Set ocassion manually, will be used later on.
+    $cloth->days()->attach([$dayId => ['ocassion' => 1]]);
+    // A Day can be fetched through Cloth.
+    $this->assertInstanceOf(Day::class, $cloth->days()->first());
+  }
 }

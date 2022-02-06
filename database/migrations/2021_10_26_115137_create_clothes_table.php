@@ -22,6 +22,9 @@ class CreateClothesTable extends Migration
             $table->string('buy_at')->nullable();
             $table->timestamp('buy_date')->nullable();
             $table->string('status')->nullable();
+            $table->unsignedBigInteger('user_id');
+            
+            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
         });
     }
 

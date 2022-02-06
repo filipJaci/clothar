@@ -8,61 +8,69 @@ use App\Models\Cloth;
 
 use App\Http\Requests\ClothStoreRequest;
 
-class ClothController extends Controller
-{
+class ClothController extends Controller{
 
-    public function store(ClothStoreRequest $request){
+  // Gets all of clothes associated with user.
+  private function getUserClothes($user){
+    return $user->clothes()->get();
+  }
 
-        Cloth::create($request->validated());
+  public function store(ClothStoreRequest $request){
+    // Get the user information.
+    $user = auth()->user();
+    // Create new cloth.
+    $cloth = new Cloth($request->validated());
+    // Save cloth associated to the user.
+    $user->clothes()->save($cloth);
 
-        return response()->json([
-            'title' => 'Create Successful',
-            'message' => 'A piece of clothing has been created.',
-            'write' => true,
-            'data' => Cloth::all()
-        ], 200);
-    }
+    // Return the response.
+    return response()->json([
+      'title' => 'Create Successful',
+      'message' => 'A piece of clothing has been created.',
+      'write' => true,
+      'data' => $this->getUserClothes($user)
+    ], 200);
+  }
 
-    public function update(ClothStoreRequest $request, Cloth $cloth){
-        
-        $cloth->update($request->validated());
+  public function update(ClothStoreRequest $request, Cloth $cloth){
+    // Get user information.
+    $user = auth()->user();
+    // Update existing cloth.
+    $cloth->update($request->validated());
 
-        return response()->json([
-            'title' => 'Update Successful',
-            'message' => 'A piece of clothing has been updated.',
-            'write' => true,
-            'data' => Cloth::all()
-        ], 200);
-    }
+    // Return the response.
+    return response()->json([
+      'title' => 'Update Successful',
+      'message' => 'A piece of clothing has been updated.',
+      'write' => true,
+      'data' => $this->getUserClothes($user)
+    ], 200);
+  }
 
-    public function destroy(Cloth $cloth){
-        $cloth->delete();
+  public function destroy(Cloth $cloth){
+    // Get the user information.
+    $user = auth()->user();
+    // Delete the cloth.
+    $cloth->delete();
 
-        return response()->json([
-            'title' => 'Delete Successful',
-            'message' => 'A piece of clothing has been deleted.',
-            'write' => true,
-            'data' => Cloth::all()
-        ], 200);
-    }
+    return response()->json([
+      'title' => 'Delete Successful',
+      'message' => 'A piece of clothing has been deleted.',
+      'write' => true,
+      'data' => $this->getUserClothes($user)
+    ], 200);
+  }
 
-    public function show(Cloth $cloth){
+  public function index(){
+    // Get the user information.
+    $user = auth()->user();
 
-        return response()->json([
-            'title' => 'Show Successful',
-            'message' => '',
-            'write' => false,
-            'data' => $cloth
-        ], 200);
-    }
-
-    public function index(){
-
-        return response()->json([
-            'title' => 'Index Successful',
-            'message' => 'Cloth index successful',
-            'write' => false,
-            'data' => Cloth::all()
-        ], 200);
-    }
+    // Return the response.
+    return response()->json([
+      'title' => 'Index Successful',
+      'message' => 'Cloth index successful',
+      'write' => false,
+      'data' => $this->getUserClothes($user)
+    ], 200);
+  }
 }
