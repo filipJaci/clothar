@@ -24,7 +24,7 @@ class ClothDayManagmentTest extends TestCase
   // Creates a Cloth and returns its id.
   private function createClothAndGetId($user){
 
-    // Create a new cloth and attach it to user.
+    // Create a new Cloth and attach it to User.
     $cloth = $user->clothes()->create([
       'title' => $this->faker->word(),
       'description' => null,
@@ -41,17 +41,39 @@ class ClothDayManagmentTest extends TestCase
     return $allClothes[$allClothes->count() - 1]->id;
   }
 
-  // Creates Day with Cloth worn on that day.
+  // Creates Day with Clothes worn on that day.
   private function createDayWithCloth($user, $date, $clothes){
     // As a User
     return $this->actingAs($user)
-    // creates Day with Cloth worn on that day.
+    // create Day with Clothes worn on that day.
     ->post('api/days', [
       'date' => $date,
       'clothes' => $clothes,
       // will be used in the future
       // 'ocassion' => 1
     ]);
+
+  }
+
+  // Updates Day with Clothes worn on that day.
+  private function updateDayWithCloth($user, $dayId, $clothes){
+    // As a User
+    return $this->actingAs($user)
+    // update Day with Clothes worn on that day.
+    ->patch('api/days/' . $dayId, [
+      'clothes' => $clothes,
+      // will be used in the future
+      // 'ocassion' => 1
+    ]);
+
+  }
+
+  // Deletes Day with Clothes worn on that day.
+  private function deleteDayWithCloth($user, $dayId){
+    // As a User
+    return $this->actingAs($user)
+    // update Day with Clothes worn on that day.
+    ->delete('api/days/' . $dayId);
 
   }
 
@@ -63,6 +85,9 @@ class ClothDayManagmentTest extends TestCase
     $this->assertArrayHasKey('write', $response);
     $this->assertArrayHasKey('data', $response);
 
+    if(count($response['data']) > 0){
+      $this->assertArrayHasKey('clothes', $response['data'][0]);
+    }
   }
 
   use RefreshDatabase;
@@ -81,7 +106,7 @@ class ClothDayManagmentTest extends TestCase
     $this->assertCount(1, Cloth::all());
 
     // Record the response.
-    // As the User, on the given date, store clothes.
+    // As the User, on the given date, store Clothes.
     $response = $this->createDayWithCloth($user, '2021-12-12', [$clothId]);
     
     // Response HTTP status code is ok.
@@ -89,15 +114,15 @@ class ClothDayManagmentTest extends TestCase
     // Check the response format.
     $this->checkResponseFormat($response);
     
-    // There is 1 Day in the DB.
-    $this->assertCount(1, Day::all());
-    // Day can be accessed through Cloth.
-    $this->assertEquals(1, Cloth::first()->days()->count());
+    // There is 1 Day retrieved.
+    $this->assertCount(1, $response['data']);
+    // There are 1 Cloth stored on this Day.
+    $this->assertCount(1, $response['data'][0]['clothes']);
 
   }
 
   /** @test */
-  public function cloth_and_day_update_syncs_database(){
+  public function cloth_and_day_can_be_updated(){
   
     // Display more accurate errors.
     $this->withoutExceptionHandling();
@@ -108,18 +133,88 @@ class ClothDayManagmentTest extends TestCase
     $clothId1 = $this->createClothAndGetId($user);
     $clothId2 = $this->createClothAndGetId($user);
 
-    // Store 2 Clothes on the same date, one at a time.
-    // As the User, on the given date, store clothes.
-    $this->createDayWithCloth($user, '2021-12-12', [$clothId1]);
     // Record the response.
-    $response = $this->createDayWithCloth($user, '2021-12-12', [$clothId2]);
+    // As the User, on the given date, store Clothes.
+    $response = $this->createDayWithCloth($user, '2021-12-12', [$clothId1]);
+    // Store dayId of the created DayWithCloth.
+    $dayId = $response['data'][0]['id'];
     
-    // There is 1 Day entry.
+    // Record the response.
+    // As the User, using a dayId, update Clothes.
+    $response = $this->updateDayWithCloth($user, $dayId, [$clothId1, $clothId2]);
+
+    // Response HTTP status code is ok.
+    $response->assertOk();
+    // Check the response format.
+    $this->checkResponseFormat($response);
+
+    // There is 1 Day retrieved.
     $this->assertCount(1, $response['data']);
-    // There is 1 Cloth entry.
-    $this->assertCount(1, $response['data'][0]['clothes']);
-    // Cloth id matches the latest inserted Cloth.
-    $this->assertEquals($clothId2, $response['data'][0]['clothes'][0]['id']);
+    // There are 2 Clothes stored on this Day.
+    $this->assertCount(2, $response['data'][0]['clothes']);
+  }
+
+  /** @test */
+  public function cloth_and_day_can_be_deleted(){
+  
+    // Display more accurate errors.
+    $this->withoutExceptionHandling();
+    // Create a User.
+    $user = $this->createUser();
+
+    // Create a Cloth as the created User.
+    $clothId = $this->createClothAndGetId($user);
+
+    // Create multiple Days with Clothes
+    // As the User, on the given date, store Clothes.
+    $this->createDayWithCloth($user, '2021-12-12', [$clothId]);
+    // Record the response.
+    $response = $this->createDayWithCloth($user, '2021-12-13', [$clothId]);
+    // Store dayId of the created DayWithCloth.
+    $dayId = $response['data'][0]['id'];
+
+    // Record the response.
+    // As the User, using a dayId, delete Day.
+    $response = $this->deleteDayWithCloth($user, $dayId);
+
+    // Response HTTP status code is ok.
+    $response->assertOk();
+    // Check the response format.
+    $this->checkResponseFormat($response);
+
+    // There is 1 Day retrieved.
+    $this->assertCount(1, $response['data']);
+  }
+
+  /** @test */
+  public function cloth_and_day_index_returns_all_clothes(){
+  
+    // Display more accurate errors.
+    $this->withoutExceptionHandling();
+    // Create a User.
+    $user = $this->createUser();
+
+    // Create a Cloth as the created User.
+    $clothId = $this->createClothAndGetId($user);
+
+    // Create multiple Days with Clothes
+    // As the User, on the given date, store Clothes.
+    $this->createDayWithCloth($user, '2021-12-12', [$clothId]);
+    $this->createDayWithCloth($user, '2021-12-13', [$clothId]);
+    
+    // Record the response.
+    // As a User
+    $response = $this->actingAs($user)
+    // update Day with Clothes worn on that day.
+    ->get('api/days/');
+
+    // Response HTTP status code is ok.
+    $response->assertOk();
+    // Check the response format.
+    $this->checkResponseFormat($response);
+
+    // There are 2 Days retrieved.
+    $this->assertCount(2, $response['data']);
   }
 
   /** @test */
@@ -152,42 +247,6 @@ class ClothDayManagmentTest extends TestCase
     $this->assertCount(1, $response2['data'][0]['clothes']);
     // Retrieved Cloth id matches with users2's Cloth.
     $this->assertEquals($clothId2, $response2['data'][0]['clothes'][0]['id']);
-
-  }
-
-  /** @test */
-  public function cloth_and_day_index_retrives_days_with_clothes(){
-
-    // Display more accurate errors.
-    $this->withoutExceptionHandling();
-
-    // Create a User.
-    $user = $this->createUser();
-
-    // Create a Cloth for the User.
-    $clothId = $this->createClothAndGetId($user);
-
-    // Store Cloth on different dates.
-    // As the User, on the given date, store clothes.
-    $this->createDayWithCloth($user, '2021-12-12', [$clothId]);
-    $this->createDayWithCloth($user, '2021-12-13', [$clothId]);
-    $this->createDayWithCloth($user, '2021-12-14', [$clothId]);
-
-    // record response
-    // As a User
-    $response = $this->actingAs($user)->
-    // get all Days from the DB.
-    get('api/days/');
-
-    // Response HTTP status code is ok.
-    $response->assertOk();
-    // Check the response format.
-    $this->checkResponseFormat($response);
-
-    // There are 3 entries of Days
-    $this->assertCount(3, $response['data']);
-    // Clothes have been retrieved with Days.
-    $this->assertArrayHasKey('clothes', $response['data'][0]);
 
   }
 
@@ -225,5 +284,26 @@ class ClothDayManagmentTest extends TestCase
       'day_id' => $dayId
     ]);
 
+  }
+
+  /** @test */
+  public function a_user_can_only_update_their_own_cloth_and_day(){
+
+    // Display more accurate errors.
+    $this->withoutExceptionHandling();
+    // Create 2 Users.
+    $user1 = $this->createUser();
+    $user2 = $this->createUser();
+
+    // Create a Cloth and attach it to the user1.
+    $clothId = $this->createClothAndGetId($user1);
+
+    // As the user2, on the given date, store user1's Cltoh..
+    $response = $this->createDayWithCloth($user2, '2021-12-12', [$clothId]);
+
+    // Response HTTP status code is 422 - invalid data.
+    $response->assertStatus(422);
+    // Check the response format.
+    $this->checkResponseFormat($response);
   }
 }

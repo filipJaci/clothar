@@ -4,7 +4,7 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class DayStoreRequest extends FormRequest{
+class DayUpdateRequest extends FormRequest{
 
   /**
    * Determine if the User is authorized to make this request.
@@ -22,8 +22,7 @@ class DayStoreRequest extends FormRequest{
    */
   public function rules(){
     return [
-      'date' => 'required|date',
       'clothes' => 'required|array|exists:clothes,id',
     ];
   }
-  }
+}

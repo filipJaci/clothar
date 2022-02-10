@@ -18,12 +18,12 @@ use App\Http\Controllers\API\ClothDayController;
 |
 */
 
-// auth routes
+// Auth routes.
 Route::post('login', [UserController::class, 'login']);
 Route::post('register', [UserController::class, 'register']);
 Route::post('logout', [UserController::class, 'logout'])->middleware('auth:sanctum');
 
-// clothes
+// Clothes.
 Route::group(['prefix' => 'clothes', 'middleware' => 'auth:sanctum'], function () {
     Route::get('/', [ClothController::class, 'index']);
     Route::post('/', [ClothController::class, 'store']);
@@ -32,7 +32,7 @@ Route::group(['prefix' => 'clothes', 'middleware' => 'auth:sanctum'], function (
     Route::get('/{cloth}', [ClothController::class, 'show']);
 });
 
-// days
+// Days.
 Route::group(['prefix' => 'days', 'middleware' => 'auth:sanctum'], function () {
     Route::get('/', [ClothDayController::class, 'index']);
     Route::post('/', [ClothDayController::class, 'store']);
