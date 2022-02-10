@@ -11,8 +11,8 @@ use App\Models\Day;
 use App\Models\Cloth;
 use App\Models\User;
 
-class ClothDayManagmentTest extends TestCase
-{
+class ClothDayManagmentTest extends TestCase{
+
   // Laravel faker.
   use WithFaker;
 
@@ -41,11 +41,11 @@ class ClothDayManagmentTest extends TestCase
     return $allClothes[$allClothes->count() - 1]->id;
   }
 
-  // Creates Day with Clothes worn on that day.
-  private function createDayWithCloth($user, $date, $clothes){
+  // Creates Cloth with Day worn on that day.
+  private function createClothWithDay($user, $date, $clothes){
     // As a User
     return $this->actingAs($user)
-    // create Day with Clothes worn on that day.
+    // create Cloth with Day worn on that day.
     ->post('api/days', [
       'date' => $date,
       'clothes' => $clothes,
@@ -55,11 +55,11 @@ class ClothDayManagmentTest extends TestCase
 
   }
 
-  // Updates Day with Clothes worn on that day.
-  private function updateDayWithCloth($user, $dayId, $clothes){
+  // Updates Cloth with Day worn on that day.
+  private function updateClothWithDay($user, $dayId, $clothes){
     // As a User
     return $this->actingAs($user)
-    // update Day with Clothes worn on that day.
+    // update Cloth with Day worn on that day.
     ->patch('api/days/' . $dayId, [
       'clothes' => $clothes,
       // will be used in the future
@@ -68,13 +68,46 @@ class ClothDayManagmentTest extends TestCase
 
   }
 
-  // Deletes Day with Clothes worn on that day.
-  private function deleteDayWithCloth($user, $dayId){
+  // Deletes Cloth with Day worn on that day.
+  private function deleteClothWithDay($user, $dayId){
     // As a User
     return $this->actingAs($user)
-    // update Day with Clothes worn on that day.
+    // delete Cloth with Day worn on that day.
     ->delete('api/days/' . $dayId);
 
+  }
+
+  // Gets all of Days with Clothes that belong to the User.
+  private function indexClothWithDay($user){
+    // As a User
+    return $this->actingAs($user)
+    // get all of Days with Clothes that belong to that User.
+    ->get('api/days/');
+  }
+
+  // Creates two Days with Clothes as the User.
+  private function createMultipleClothWithDay($user){
+    // Create Cloth and store clothId.
+    $clothId = $this->createClothAndGetId($user);
+
+    // Create two Days with Clothes as the User.
+    $this->createClothWithDay($user, '2022-02-09', [$clothId]);
+    return $this->createClothWithDay($user, '2022-02-10', [$clothId]);
+  }
+
+  // Creates a Days with Clothes with 2 Clothes as user1, and 1 Cloth as user2.
+  private function createClothWithDayAsMultipleUsers($user1, $user2){
+    // Create 3 Clothes, 2 for user1 and 1 for user2.
+    $clothId1 = $this->createClothAndGetId($user1);
+    $clothId2 = $this->createClothAndGetId($user1);
+    $clothId3 = $this->createClothAndGetId($user2);
+
+    // Store Clothes for each User.
+    // As the User, on the given date, store clothes.
+    $this->createClothWithDay($user1, '2021-12-12', [$clothId1]);
+    $this->createClothWithDay($user2, '2021-12-12', [$clothId3]);
+    // Return the response.
+    return $this->createClothWithDay($user1, '2021-12-13', [$clothId2]);
   }
 
   // Checks api repsonse format, wheter or not all keys are present.
@@ -93,13 +126,14 @@ class ClothDayManagmentTest extends TestCase
   use RefreshDatabase;
 
   /** @test */
-  public function cloth_and_day_can_be_added(){
+  public function cloth_and_day_can_be_created(){
   
     // Display more accurate errors.
     $this->withoutExceptionHandling();
     // Create a User.
     $user = $this->createUser();
 
+    // Record the clothId.
     // Create a Cloth as the created User.
     $clothId = $this->createClothAndGetId($user);
     // There is 1 Cloth in the DB.
@@ -107,7 +141,7 @@ class ClothDayManagmentTest extends TestCase
 
     // Record the response.
     // As the User, on the given date, store Clothes.
-    $response = $this->createDayWithCloth($user, '2021-12-12', [$clothId]);
+    $response = $this->createClothWithDay($user, '2021-12-12', [$clothId]);
     
     // Response HTTP status code is ok.
     $response->assertOk();
@@ -135,13 +169,13 @@ class ClothDayManagmentTest extends TestCase
 
     // Record the response.
     // As the User, on the given date, store Clothes.
-    $response = $this->createDayWithCloth($user, '2021-12-12', [$clothId1]);
-    // Store dayId of the created DayWithCloth.
+    $response = $this->createClothWithDay($user, '2021-12-12', [$clothId1]);
+    // Store dayId of the created ClothWithDay.
     $dayId = $response['data'][0]['id'];
     
     // Record the response.
     // As the User, using a dayId, update Clothes.
-    $response = $this->updateDayWithCloth($user, $dayId, [$clothId1, $clothId2]);
+    $response = $this->updateClothWithDay($user, $dayId, [$clothId1, $clothId2]);
 
     // Response HTTP status code is ok.
     $response->assertOk();
@@ -167,15 +201,15 @@ class ClothDayManagmentTest extends TestCase
 
     // Create multiple Days with Clothes
     // As the User, on the given date, store Clothes.
-    $this->createDayWithCloth($user, '2021-12-12', [$clothId]);
+    $this->createClothWithDay($user, '2021-12-12', [$clothId]);
     // Record the response.
-    $response = $this->createDayWithCloth($user, '2021-12-13', [$clothId]);
-    // Store dayId of the created DayWithCloth.
+    $response = $this->createClothWithDay($user, '2021-12-13', [$clothId]);
+    // Store dayId of the created ClothWithDay.
     $dayId = $response['data'][0]['id'];
 
     // Record the response.
     // As the User, using a dayId, delete Day.
-    $response = $this->deleteDayWithCloth($user, $dayId);
+    $response = $this->deleteClothWithDay($user, $dayId);
 
     // Response HTTP status code is ok.
     $response->assertOk();
@@ -187,26 +221,17 @@ class ClothDayManagmentTest extends TestCase
   }
 
   /** @test */
-  public function cloth_and_day_index_returns_all_clothes(){
+  public function cloth_and_day_index_returns_all_days_with_clothes(){
   
     // Display more accurate errors.
     $this->withoutExceptionHandling();
     // Create a User.
     $user = $this->createUser();
 
-    // Create a Cloth as the created User.
-    $clothId = $this->createClothAndGetId($user);
-
-    // Create multiple Days with Clothes
-    // As the User, on the given date, store Clothes.
-    $this->createDayWithCloth($user, '2021-12-12', [$clothId]);
-    $this->createDayWithCloth($user, '2021-12-13', [$clothId]);
-    
-    // Record the response.
-    // As a User
-    $response = $this->actingAs($user)
-    // update Day with Clothes worn on that day.
-    ->get('api/days/');
+    // Create two Days with Clothes as the User.
+    $this->createMultipleClothWithDay($user);
+    // Get all of Days with Clothes that belong to the User.
+    $response = $this->indexClothWithDay($user);
 
     // Response HTTP status code is ok.
     $response->assertOk();
@@ -218,7 +243,7 @@ class ClothDayManagmentTest extends TestCase
   }
 
   /** @test */
-  public function cloth_and_day_adding_returns_only_users_own_data(){
+  public function cloth_and_day_create_returns_only_users_own_cloth_and_day(){
   
     // Display more accurate errors.
     $this->withoutExceptionHandling();
@@ -226,32 +251,77 @@ class ClothDayManagmentTest extends TestCase
     $user1 = $this->createUser();
     $user2 = $this->createUser();
 
-    // Create 3 Clothes, 2 for user1 and 1 for user2.
-    $clothId1 = $this->createClothAndGetId($user1);
-    $clothId2 = $this->createClothAndGetId($user2);
-    $clothId3 = $this->createClothAndGetId($user1);
+    // Creates 2 Day with Cloth as user1, and 1 as user2.
+    $response = $this->createClothWithDayAsMultipleUsers($user1, $user2);
 
-    // Store Clothes for each User.
-    // As the User, on the given date, store clothes.
-    $response1 = $this->createDayWithCloth($user1, '2021-12-12', [$clothId1, $clothId3]);
-    $response2 = $this->createDayWithCloth($user2, '2021-12-12', [$clothId2]);
-
-    // There are 2 Clothes retrieved for the user1. 
-    $this->assertCount(2, $response1['data'][0]['clothes']);
-
-    // Retrieved Cloth ids matches with users1's Clothes.
-    $this->assertEquals($clothId1, $response1['data'][0]['clothes'][0]['id']);
-    $this->assertEquals($clothId3, $response1['data'][0]['clothes'][1]['id']);
-
-    // There is Cloth retrieved for the user2. 
-    $this->assertCount(1, $response2['data'][0]['clothes']);
-    // Retrieved Cloth id matches with users2's Cloth.
-    $this->assertEquals($clothId2, $response2['data'][0]['clothes'][0]['id']);
-
+    // There are 2 Days in the response.
+    $this->assertCount(2, $response['data']);
   }
 
   /** @test */
-  public function a_day_without_clothes_is_removed_from_the_database(){
+  public function cloth_and_day_update_returns_only_users_own_cloth_and_day(){
+  
+    // Display more accurate errors.
+    $this->withoutExceptionHandling();
+    // Create 2 Users.
+    $user1 = $this->createUser();
+    $user2 = $this->createUser();
+
+    // Creates two Days with Clothes as user1, and 1 as user2.
+    $response = $this->createClothWithDayAsMultipleUsers($user1, $user2);
+    // Store dayId from response.
+    $dayId = $response['data'][0]['id'];
+    // Create a new Cloth as the user1 and get id.
+    $clothId = $this->createClothAndGetId($user1);
+
+    // Update Day as the user1.
+    $response = $this->updateClothWithDay($user1, $dayId, [$clothId]);
+
+    // Cloth has been updated.
+    $this->assertEquals($clothId, $response['data'][0]['clothes'][0]['id']);
+  }
+
+  /** @test */
+  public function cloth_and_day_delete_returns_only_users_own_clothes_and_days(){
+  
+    // Display more accurate errors.
+    $this->withoutExceptionHandling();
+    // Create 2 Users.
+    $user1 = $this->createUser();
+    $user2 = $this->createUser();
+
+    // Creates two Days with Clothes as user1, and 1 as user2.
+    $response = $this->createClothWithDayAsMultipleUsers($user1, $user2);
+    // Store dayId from response.
+    $dayId = $response['data'][0]['id'];
+
+    // Update Day as the user1.
+    $response = $this->deleteClothWithDay($user1, $dayId);
+
+    // There is 1 Day in the response.
+    $this->assertCount(1, $response['data']);
+  }
+
+  /** @test */
+  public function cloth_and_day_index_returns_only_users_own_cloth_and_day(){
+  
+    // Display more accurate errors.
+    $this->withoutExceptionHandling();
+    // Create 2 Users.
+    $user1 = $this->createUser();
+    $user2 = $this->createUser();
+
+    // Creates two Days with Clothes as user1, and 1 as user2.
+    $this->createClothWithDayAsMultipleUsers($user1, $user2);
+    // Get all Cloths with Day for user1.
+    $response = $this->indexClothWithDay($user1);
+
+    // There are 2 Days in the response.
+    $this->assertCount(2, $response['data']);
+  }
+
+  /** @test */
+  public function removing_day_removes_cloth_and_day_pivot_data(){
 
     // Display more accurate errors.
     $this->withoutExceptionHandling();
@@ -261,12 +331,12 @@ class ClothDayManagmentTest extends TestCase
     // Create a Cloth and attach it to the User.
     $clothId = $this->createClothAndGetId($user);
 
-    // Store Cloth on a date.
+    // Record the response.
     // As the User, on the given date, store clothes.
-    $this->createDayWithCloth($user, '2021-12-12', [$clothId]);
+    $response = $this->createClothWithDay($user, '2021-12-12', [$clothId]);
     
     // Get id of the inserted Day.
-    $dayId = Day::first()->id;
+    $dayId = $response['data'][0]['id'];
 
     // Record the response.
     // As a User
@@ -287,7 +357,7 @@ class ClothDayManagmentTest extends TestCase
   }
 
   /** @test */
-  public function a_user_can_only_update_their_own_cloth_and_day(){
+  public function a_user_can_only_create_cloth_and_day_with_their_own_clothes(){
 
     // Display more accurate errors.
     $this->withoutExceptionHandling();
@@ -298,8 +368,58 @@ class ClothDayManagmentTest extends TestCase
     // Create a Cloth and attach it to the user1.
     $clothId = $this->createClothAndGetId($user1);
 
-    // As the user2, on the given date, store user1's Cltoh..
-    $response = $this->createDayWithCloth($user2, '2021-12-12', [$clothId]);
+    // As the user2, on the given date, store user1's Cloth.
+    $response = $this->createClothWithDay($user2, '2021-12-12', [$clothId]);
+
+    // Response HTTP status code is 422 - invalid data.
+    $response->assertStatus(422);
+    // Check the response format.
+    $this->checkResponseFormat($response);
+  }
+
+  /** @test */
+  public function a_user_can_only_update_their_own_cloth_and_day(){
+
+    // Display more accurate errors.
+    $this->withoutExceptionHandling();
+    // Create 2 Users.
+    $user1 = $this->createUser();
+    $user2 = $this->createUser();
+
+    // Record the response.
+    // Creates 2 Day with Cloth as user1, and 1 as user2.
+    $response = $this->createClothWithDayAsMultipleUsers($user1, $user2);
+    // Get dayId of the user1's first Day.
+    $dayId = $response['data'][0]['id'];
+    // Create a new Cloth as user2.
+    $clothId = $this->createClothAndGetId($user2);
+
+    // Update user1's day as user2.
+    $response = $this->updateClothWithDay($user2, $dayId, [$clothId]);
+
+    // Response HTTP status code is 422 - invalid data.
+    $response->assertStatus(422);
+    // Check the response format.
+    $this->checkResponseFormat($response);
+  }
+
+  /** @test */
+  public function a_user_can_only_delete_their_own_cloth_and_day(){
+
+    // Display more accurate errors.
+    $this->withoutExceptionHandling();
+    // Create 2 Users.
+    $user1 = $this->createUser();
+    $user2 = $this->createUser();
+
+    // Record the response.
+    // Creates 2 Day with Cloth as user1, and 1 as user2.
+    $response = $this->createClothWithDayAsMultipleUsers($user1, $user2);
+    // Get dayId of the user1's first Day.
+    $dayId = $response['data'][0]['id'];
+
+    // Delete user1's day as user2.
+    $response = $this->deleteClothWithDay($user2, $dayId);
 
     // Response HTTP status code is 422 - invalid data.
     $response->assertStatus(422);

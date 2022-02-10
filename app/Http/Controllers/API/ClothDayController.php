@@ -110,6 +110,17 @@ class ClothDayController extends Controller{
     // Get User data.
     $user = auth()->user();
 
+    // Day does not belong to the User.
+    if($day->user_id != $user->id){
+      // Return the response.
+      return response()->json([
+        'title' => 'Update Failed',
+        'message' => 'Submited Day does not belong to the User.',
+        'write' => true,
+        'data' => $this->getUserDays($user)
+      ], 422);
+    }
+
     // There are Clothes that don't belong to the User.
     if(! $this->validateUserCloth($user, $request['clothes'])){
       // Return the response.
@@ -149,11 +160,23 @@ class ClothDayController extends Controller{
    * @return \Illuminate\Http\Response
    */
   public function destroy(Day $day){
-    // Delete day from the DB.
-    $day->delete();
-
+    
     // Get the user information.
     $user = auth()->user();
+
+    // Day does not belong to the User.
+    if($day->user_id != $user->id){
+      // Return the response.
+      return response()->json([
+        'title' => 'Update Failed',
+        'message' => 'Submited Day does not belong to the User.',
+        'write' => true,
+        'data' => $this->getUserDays($user)
+      ], 422);
+    }
+
+    // Delete day from the DB.
+    $day->delete();
 
     return response()->json([
       'title' => 'Delete Successful',
