@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
 use Carbon\Carbon;
 
@@ -11,24 +12,59 @@ use App\Models\User;
 
 class ClothManagmentTest extends TestCase{
 
-  // Creates a user.
+  // Laravel faker.
+  use WithFaker;
+
+  // Creates a User.
   private function createUser(){
     return User::factory()->create();
   }
 
-  // Creates a cloth.
-  private function createCloth(){
+  // Creates a Cloth as the User.
+  private function createCloth($user){
     // As a user
-    return $this->actingAs($this->createUser())
-    // create a cloth.
+    return $this->actingAs($user)
+    // create a Cloth.
     ->post('/api/clothes',[
-      'title' => 'Short Sleeves shirt',
+      'title' => $this->faker->word(),
       'description' => null,
       'category' => null,
       'buy_at' => null,
       'buy_date' => null,
       'status' => 1,
     ]);
+  }
+
+  // Updates a Cloth as the User.
+  private function updateCloth($user, $clothId){
+    // As a User
+    return $this->actingAs($user)
+    // update first Cloth.
+    ->patch('api/clothes/' . $clothId, [
+      // New values.
+      'title' => 'Long Sleeves shirt',
+      'description' => "new description",
+      'category' => 1,
+      'buy_at' => "ACME Store",
+      'buy_date' => "2020-10-20",
+      'status' => 2,
+    ]);
+  }
+
+  // Deletes a Cloth as the User.
+  private function deleteCloth($user, $clothId){
+    // As a User
+    return $this->actingAs($user)
+    // update first Cloth.
+    ->delete('api/clothes/' . $clothId);
+  }
+
+  // Gets all Clothes as the User.
+  private function indexClothes($user){
+    // As a user
+    return $this->actingAs($user)
+    // get all Clothes.
+    ->get('api/clothes/');
   }
 
   // Checks api repsonse format, wheter or not all keys are present.
@@ -42,34 +78,129 @@ class ClothManagmentTest extends TestCase{
   use RefreshDatabase;
 
   /** @test */
-  public function a_piece_of_cloth_can_be_added(){
-
-    // display more accurate errors
-    $this->withoutExceptionHandling();
-    // create a Cloth
-    $response = $this->createCloth();
-
-    // response HTTP status code is ok
-    $response->assertOk();
-    // check response format
-    $this->checkResponseFormat($response);
-
-    // there is 1 Cloth in the DB
-    $this->assertCount(1, Cloth::all());
-  }
-
-  /** @test */
-  public function only_users_own_clothes_are_displayed(){
+  public function cloth_can_be_created(){
 
     // Display more accurate errors.
     $this->withoutExceptionHandling();
-    // Create 2 Clothes via 2 different users.
-    $this->createCloth();
-    $this->createCloth();
+    // Create a User.
+    $user = $this->createUser();
+
+    // Record the response.
+    // Create a Cloth as the created User.
+    $response = $this->createCloth($user);
+
+    // Response HTTP status code is ok.
+    $response->assertOk();
+    // Check response format.
+    $this->checkResponseFormat($response);
+
+    // There is 1 Cloth retrieved.
+    $this->assertCount(1, $response['data']);
+  }
+
+  /** @test */
+  public function cloth_can_be_updated(){
+
+    // Display more accurate errors.
+    $this->withoutExceptionHandling();
+    // Create a User.
+    $user = $this->createUser();
+
+    // Record the response.
+    // Create a Cloth as the created User.
+    $response = $this->createCloth($user);
+
+    // Get the clothId.
+    $clothId = $response['data'][0]['id'];
+
+    // As the User update Cloth.
+    $response = $this->updateCloth($user, $clothId);
+
+    // Response HTTP status code is ok.
+    $response->assertOk();
+    // Check response format.
+    $this->checkResponseFormat($response);
+
+    // Store response data as cloth.
+    $cloth = $response['data'][0];
+
+    // Check if Cloth has been updated.
+    $this->assertEquals('Long Sleeves shirt', $cloth['title']);
+    $this->assertEquals('new description', $cloth['description']);
+    $this->assertEquals(1, $cloth['category']);
+    $this->assertEquals('ACME Store', $cloth['buy_at']);
+    $this->assertEquals(Carbon::parse('2020-10-20'), Carbon::parse($cloth['buy_date']));
+    $this->assertEquals(2, $cloth['status']);
+
+  }
+
+  /** @test */
+  public function cloth_can_be_deleted(){
+
+    // Display more accurate errors.
+    $this->withoutExceptionHandling();
+    // Create a User.
+    $user = $this->createUser();
+
+    // Create 2 Clothes.
+    $this->createCloth($user);
+    // Store the response on the second creation.
+    $response = $this->createCloth($user);
+
+    // Get the clothId.
+    $clothId = $response['data'][0]['id'];
+
+    // As the User delete Cloth.
+    $response = $this->deleteCloth($user, $clothId);
+
+    // Response HTTP status code is ok.
+    $response->assertOk();
+    // Check response format.
+    $this->checkResponseFormat($response);
+
+    // There is 1 Cloth retrieved.
+    $this->assertCount(1, $response['data']);
+  }
+
+  /** @test */
+  public function cloth_index_returns_all_clothes(){
+    // Display more accurate errors.
+    $this->withoutExceptionHandling();
+    // Create a User.
+    $user = $this->createUser();
+
+    // Create 2 Clothes.
+    $this->createCloth($user);
+    $this->createCloth($user);
+
+    // Get all Clothes that belong to the user.
+    $response = $this->indexClothes($user);
+
+    // Response HTTP status code is ok.
+    $response->assertOk();
+    // Check response format.
+    $this->checkResponseFormat($response);
+
+    // There is 2 Clothes retrieved.
+    $this->assertCount(2, $response['data']);
+  }
+
+  /** @test */
+  public function cloth_create_returns_only_users_own_clothes(){
+
+    // Display more accurate errors.
+    $this->withoutExceptionHandling();
+    // Create 2 Users.
+    $user1 = $this->createUser();
+    $user2 = $this->createUser();
+
+    // Create 2 Clothes for 2 Users.
+    $this->createCloth($user1);
+    $response = $this->createCloth($user2);
 
     // Store the response.
     // As a first user
-    $response = $this->actingAs(User::first())
+    $response = $this->actingAs($user1)
     // get all clothes.
     ->get('api/clothes/');
 
@@ -83,162 +214,145 @@ class ClothManagmentTest extends TestCase{
   }
 
   /** @test */
-  public function a_piece_of_cloth_can_be_updated(){
+  public function cloth_update_returns_only_users_own_clothes(){
 
     // Display more accurate errors.
     $this->withoutExceptionHandling();
-    // Create a piece of Cloth.
-    $this->createCloth();
 
-    // As the first user
-    $response = $this->actingAs(User::first())
-    // update first cloth.
-    ->patch('api/clothes/' . Cloth::first()->id, [
-      // New values.
-      'title' => 'Long Sleeves shirt',
-      'description' => "new description",
-      'category' => 1,
-      'buy_at' => "ACME Store",
-      'buy_date' => "2020-10-20",
-      'status' => 2,
-    ]);
+    // Create 2 Users.
+    $user1 = $this->createUser();
+    $user2 = $this->createUser();
+
+    // Create 2 Clothes for 2 Users.
+    $this->createCloth($user1);
+    // Store the response.
+    $response = $this->createCloth($user2);
+
+    // Get clothId from response.
+    $clothId = $response['data'][0]['id'];
+
+    // Store the response.
+    // Update Cloth as user2.
+    $response = $this->updateCloth($user2, $clothId);
+
+    // Response HTTP status code is ok.
+    $response->assertOk();
+    // Check the response format.
+    $this->checkResponseFormat($response);
+
+    // There is 1 Cloth fetched from the DB.
+    $this->assertCount(1, $response['data']);
+
+  }
+
+  /** @test */
+  public function cloth_delete_returns_only_users_own_clothes(){
+    
+    // Display more accurate errors.
+    $this->withoutExceptionHandling();
+
+    // Create 2 Users.
+    $user1 = $this->createUser();
+    $user2 = $this->createUser();
+
+    // Create 1 Cloth for user1 and 2 Clothes for user2.
+    $this->createCloth($user1);
+    $this->createCloth($user2);
+    // Store the response.
+    $response = $this->createCloth($user2);
+
+    // Get clothId from response.
+    $clothId = $response['data'][0]['id'];
+
+    // Store the response.
+    // Delete 1 Cloth as user2.
+    $response = $this->deleteCloth($user2, $clothId);
+
+    // Response HTTP status code is ok.
+    $response->assertOk();
+    // Check the response format.
+    $this->checkResponseFormat($response);
+
+    // There is 1 Cloth fetched from the DB.
+    $this->assertCount(1, $response['data']);
+
+  }
+
+  /** @test */
+  public function cloth_index_returns_only_users_own_clothes(){
+    // Display more accurate errors.
+    $this->withoutExceptionHandling();
+    // Create 2 Users.
+    $user1 = $this->createUser();
+    $user2 = $this->createUser();
+
+
+    // Create 2 Clothes for user1 and 1 Cloth for user2.
+    $this->createCloth($user1);
+    $this->createCloth($user1);
+    $this->createCloth($user2);
+
+    // Get all Clothes that belong to the user1.
+    $response = $this->indexClothes($user1);
 
     // Response HTTP status code is ok.
     $response->assertOk();
     // Check response format.
     $this->checkResponseFormat($response);
 
-    // get updated Cloth from the DB
-    $cloth = Cloth::first();
-
-    // check if Cloth has been updated
-    $this->assertEquals('Long Sleeves shirt', $cloth->title);
-    $this->assertEquals('new description', $cloth->description);
-    $this->assertEquals(1, $cloth->category);
-    $this->assertEquals('ACME Store', $cloth->buy_at);
-    $this->assertEquals(Carbon::parse('2020-10-20'), $cloth->buy_date);
-    $this->assertEquals(2, $cloth->status);
-
+    // There is 2 Clothes retrieved.
+    $this->assertCount(2, $response['data']);
   }
 
   /** @test */
-  public function cloth_update_returns_all_of_users_clothes(){
+  public function a_user_can_only_update_their_own_cloth(){
 
     // Display more accurate errors.
     $this->withoutExceptionHandling();
-    // Create 2 Clothes via 2 different users.
-    $this->createCloth();
-    $this->createCloth();
+    // Create 2 Users.
+    $user1 = $this->createUser();
+    $user2 = $this->createUser();
 
-    // Get the first user.
-    $firstUser = User::first();
+    // Create 2 Clothes for 2 Users.
+    $this->createCloth($user1);
+    // Store the response.
+    $response = $this->createCloth($user2);
 
-    // As the first user
-    $this->actingAs($firstUser)
-    // create a new cloth.
-    ->post('api/clothes/', [
-      // New cloth.
-      'title' => 'Third shirt',
-      'description' => "Third description.",
-      'category' => 1,
-      'buy_at' => "Third Store",
-      'buy_date' => "2020-03-03",
-      'status' => 2,
-    ]);
+    // Get clothId from response.
+    $clothId = $response['data'][0]['id'];
 
-    // As the first user
-    $response = $this->actingAs(User::first())
-    // update first cloth.
-    ->patch('api/clothes/' . Cloth::first()->id, [
-      // New values.
-      'title' => 'Long Sleeves shirt',
-      'description' => "new description",
-      'category' => 1,
-      'buy_at' => "ACME Store",
-      'buy_date' => "2020-10-20",
-      'status' => 2,
-    ]);
+    // Attempt to update user2's Cloth as user1.
+    $response = $this->updateCloth($user1, $clothId);
 
-    // Response returned 2 clothes items.
-    $this->assertCount(2, $response['data']);
-    // 2 clothes both belong to the first user.
-    $this->assertEquals(1, $response['data'][0]['id']);
-    $this->assertEquals(3, $response['data'][1]['id']);
-
-  }
-
-  /** @test */
-  public function a_piece_of_cloth_can_be_removed(){
-
-    // display more accurate errors
-    $this->withoutExceptionHandling();
-    // create a Cloth
-    $this->createCloth();
-
-    // store response
-    // as a user
-    $response = $this->actingAs($this->createUser())
-    // delete Cloth
-    ->delete('api/clothes/' . Cloth::first()->id);
-
-    // response HTTP status code is ok
-    $response->assertOk();
-    // check response format
+    // Response HTTP status code is 422 - invalid data.
+    $response->assertStatus(422);
+    // Check the response format.
     $this->checkResponseFormat($response);
-
-    // there are no Clothes in the DB
-    $this->assertCount(0, Cloth::all());
   }
 
   /** @test */
-  public function cloth_remove_returns_all_of_users_clothes(){
+  public function a_user_can_only_delete_their_own_cloth(){
 
     // Display more accurate errors.
     $this->withoutExceptionHandling();
-    // Create 2 Clothes via 2 different users.
-    $this->createCloth();
-    $this->createCloth();
+    // Create 2 Users.
+    $user1 = $this->createUser();
+    $user2 = $this->createUser();
 
-    // Get the first user.
-    $firstUser = User::first();
+    // Create 2 Clothes for 2 Users.
+    $this->createCloth($user1);
+    // Store the response.
+    $response = $this->createCloth($user2);
 
-    // Create 2 new clothes as the first user.
-    // As the first user
-    $this->actingAs($firstUser)
-    // create a new cloth.
-    ->post('api/clothes/', [
-      // New cloth.
-      'title' => 'Third shirt',
-      'description' => "Third description.",
-      'category' => 1,
-      'buy_at' => "Third Store",
-      'buy_date' => "2020-03-03",
-      'status' => 2,
-    ]);
+    // Get clothId from response.
+    $clothId = $response['data'][0]['id'];
 
-    // As the first user
-    $this->actingAs($firstUser)
-    // create a new cloth.
-    ->post('api/clothes/', [
-      // New cloth.
-      'title' => 'Fourth shirt',
-      'description' => "Fourth description.",
-      'category' => 1,
-      'buy_at' => "Fourth Store",
-      'buy_date' => "2020-04-04",
-      'status' => 2,
-    ]);
+    // Attempt to delete user2's Cloth as user1.
+    $response = $this->deleteCloth($user1, $clothId);
 
-    // As the first user
-    $response = $this->actingAs(User::first())
-    // remove first cloth.
-    ->delete('api/clothes/' . Cloth::first()->id);
-
-    // Response returned 2 clothes items.
-    $this->assertCount(2, $response['data']);
-    // 2 clothes both belong to the first user.
-    $this->assertEquals(3, $response['data'][0]['id']);
-    $this->assertEquals(4, $response['data'][1]['id']);
-
+    // Response HTTP status code is 422 - invalid data.
+    $response->assertStatus(422);
+    // Check the response format.
+    $this->checkResponseFormat($response);
   }
 }
