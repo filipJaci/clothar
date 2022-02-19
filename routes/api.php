@@ -25,18 +25,17 @@ Route::post('logout', [UserController::class, 'logout'])->middleware('auth:sanct
 
 // Clothes.
 Route::group(['prefix' => 'clothes', 'middleware' => 'auth:sanctum'], function () {
-    Route::get('/', [ClothController::class, 'index']);
-    Route::post('/', [ClothController::class, 'store']);
-    Route::patch('/{cloth}', [ClothController::class, 'update']);
-    Route::delete('/{cloth}', [ClothController::class, 'destroy']);
-    Route::get('/{cloth}', [ClothController::class, 'show']);
+  Route::get('/', [ClothController::class, 'index']);
+  Route::post('/', [ClothController::class, 'store']);
+  Route::patch('/{cloth}', [ClothController::class, 'update']);
+  Route::delete('/{cloth}', [ClothController::class, 'destroy']);
 });
 
 // Days.
 Route::group(['prefix' => 'days', 'middleware' => 'auth:sanctum'], function () {
-    Route::get('/', [ClothDayController::class, 'index']);
-    Route::post('/', [ClothDayController::class, 'store']);
-    Route::patch('/{day}', [ClothDayController::class, 'update']);
-    Route::delete('/{day}', [ClothDayController::class, 'destroy']);
-    Route::get('/{day}', [ClothDayController::class, 'show']);
+  Route::get('/', [ClothDayController::class, 'index']);
+  Route::post('/', [ClothDayController::class, 'store']);
+  Route::patch('/{day}', [ClothDayController::class, 'update']);
+  Route::delete('/{day}', [ClothDayController::class, 'destroy']);
+  Route::get('/{day}', [ClothDayController::class, 'show']);
 });
