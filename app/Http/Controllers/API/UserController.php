@@ -12,6 +12,8 @@ use App\Models\User;
 use App\Models\Cloth;
 use App\Models\Day;
 
+use App\Http\Requests\UserRegistrationRequest;
+
 class UserController extends Controller {
   
   // API response
@@ -46,23 +48,23 @@ class UserController extends Controller {
   /**
    * Register
    */
-  public function register(Request $request){
+  public function register(UserRegistrationRequest $request){
 
-    // successful register
+    // Successful register.
     try {
-      // make a new User instance
+      // Make a new User instance.
       $user = new User();
-      // set field values
+      // Set field values.
       $user->name = $request->name;
       $user->email = $request->email;
       $user->password = Hash::make($request->password);
-      // save User
+      // Save User.
       $user->save();
 
-      // set API response code
+      // Set API response code
       $this->code = 200;
 
-      // set API response messages
+      // Set API response messages.
       $this->response['title'] = 'Registration successful';
       $this->response['message'] = 'You may Login now.';
     }
@@ -70,16 +72,24 @@ class UserController extends Controller {
     catch (\Illuminate\Database\QueryException $ex) {
 
       if($ex->errorInfo[2] === 'UNIQUE constraint failed: users.email'){
-        // set API response code
-        // 409 - Conflict - indication that changing credentials would help
+        // Set API response code.
+        // 409 - Conflict - indication that changing credentials would help.
         $this->code = 409;
-        // set API response messages
+        // Set API response messages.
         $this->response['title'] = 'Registration failed';
         $this->response['message'] = 'This email is already registered.';
       }
+      else if($ex->errorInfo[2] === 'UNIQUE constraint failed: users.name'){
+        // Set API response code.
+        // 409 - Conflict - indication that changing credentials would help.
+        $this->code = 409;
+        // Set API response messages.
+        $this->response['title'] = 'Registration failed';
+        $this->response['message'] = 'This username is already registered.';
+      }
       else{
-        // set API response code
-        // 400 - Bad request - broader than conflict
+        // Set API response code.
+        // 400 - Bad request - broader than conflict.
         $this->code = 400;
         $this->response['title'] = 'Registration failed';
         $this->response['message'] = 'Unknown error.';
@@ -87,7 +97,7 @@ class UserController extends Controller {
 
     }
 
-    // return response
+    // Return the response.
     return response()->json($this->response, $this->code);
   }
 
@@ -96,39 +106,39 @@ class UserController extends Controller {
    */
   public function login(Request $request){
 
-    // set API response title
+    // Set API response title.
     $this->response['title'] = 'Login attempt';
 
-    // login credentials
+    // Login credentials.
     $credentials = [
       'email' => $request->email,
       'password' => $request->password,
     ];
 
-    // succusseful login
+    // Succusseful login.
     if (Auth::attempt($credentials)) {
-      // set API success code
+      // Set API success code.
       $this->code = 200;
-      // set API response message
+      // Set API response message.
       $this->response['message'] = 'Login successful.';
-      // set and store session token
+      // Set and store session token.
       $this->response['data']['token'] = auth()->user()->createToken('API Token')->plainTextToken;
-      // set user infomrmation
+      // Set user infomrmation.
       $this->response['data']['user']['id'] = auth()->id();
       $this->response['data']['user']['name'] = auth()->user()->name;
       $this->response['data']['clothes'] = Cloth::all();
       $this->response['data']['days'] = Day::with('clothes')->get();
     }
     
-    // failed login
+    // Failed login.
     else {
-      // set API unaothorized code
+      // Set API unaothorized code.
       $this->code = 401;
-      // set API response message
+      // Set API response message.
       $this->response['message'] = 'Login failed.';
     }
     
-    // send API response
+    // Send API response.
     return response()->json($this->response, $this->code);
   }
 
@@ -136,28 +146,28 @@ class UserController extends Controller {
   * Logout
   */
   public function logout(){
-    // set API response title
-    $this->response['title'] = 'Logout attempt';
+    // Set API response title.
+    $this->response['title'] = 'Logout attempt.';
 
-    // attempt to logout
+    // Attempt to logout.
     try {
-      // drop session
+      // Drop session.
       Session::flush();
-      // set API success code
+      // Set API success code.
       $this->code = 200;
-      // set API response message
+      // Set API response message.
       $this->response['message'] = 'Logout successful.';
     }
     
     catch (\Illuminate\Database\QueryException $ex) {
-      // set API response code
-      // 400 - Bad request - broader than conflict
+      // Set API response code.
+      // 400 - Bad request - broader than conflict.
       $this->code = 400;
-      // set API response message
+      // Set API response message.
       $this->response['message'] = 'Logout failed: - ' . $ex->getMessage();
     }
 
-    // send API response
+    // Send API response.
     return response()->json($this->response, $this->code);
   }
 }

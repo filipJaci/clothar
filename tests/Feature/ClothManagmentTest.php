@@ -6,11 +6,21 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
 use Carbon\Carbon;
+use Illuminate\Routing\Middleware\ThrottleRequests;
 
 use App\Models\Cloth;
 use App\Models\User;
 
 class ClothManagmentTest extends TestCase{
+
+  // On setup
+  protected function setUp() :void{
+    parent::setUp();
+    // disable middleware which limits number number of requests.
+    $this->withoutMiddleware(
+      ThrottleRequests::class
+    );
+  }
 
   // Laravel faker.
   use WithFaker;

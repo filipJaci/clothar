@@ -26,4 +26,4 @@ class DayStoreRequest extends FormRequest{
       'clothes' => 'required|array|exists:clothes,id',
     ];
   }
-  }
+}

@@ -3,37 +3,42 @@
 namespace Tests\Feature;
 
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Foundation\Testing\WithFaker;
+use Illuminate\Support\Str;
 use Tests\TestCase;
+use Illuminate\Routing\Middleware\ThrottleRequests;
 
 use App\Models\user;
 
-class UserManagmentTest extends TestCase
-{
+class UserManagmentTest extends TestCase{
+
+  // On setup
+  protected function setUp() :void{
+    parent::setUp();
+    // disable middleware which limits number number of requests.
+    $this->withoutMiddleware(
+      ThrottleRequests::class
+    );
+  }
 
   use RefreshDatabase;
 
-  // User data
-  private $userData = [
-    'name' => 'John Doe',
-    'email' => 'john.doe@mail.com',
-    'password' => 'password'
-  ];
-
-  // registers a User
-  private function registerUser(){
-    return $this->post('api/register', $this->userData);
+  // Registers a User.
+  private function registerUser($name, $email, $password){
+    return $this->post('api/register', [
+      'name' => $name,
+      'email' => $email,
+      'password' => $password
+    ]);
   }
 
-  private function loginUser(){
-    // register a user
-    $this->registerUser();
+  // Logs in User.
+  private function loginUser($email, $password){
 
-    // record a response
-    // login as a User
-    return $response = $this->post('api/login', [
-      'email' => $this->userData['email'],
-      'password' => $this->userData['password'],
+    // Return the response.
+    // Login User.
+    return $this->post('api/login', [
+      'email' => $email,
+      'password' => $password,
     ]);
   }
 
@@ -49,36 +54,167 @@ class UserManagmentTest extends TestCase
   /** @test */
   public function a_user_can_register(){
 
-    // record a response
-    // register a user
-    $response = $this->registerUser();
+    // Record the response.
+    // Register User.
+    $response = $this->registerUser('user1234', 'user@mail.com', 'Pswd@123');
 
-    // response HTTP status code is ok
+    // Response HTTP status code is ok.
     $response->assertOk();
-    // check response format
+    // Check the response format.
     $this->checkResponseFormat($response);
 
-    // there is 1 User in the DB
+    // There is 1 User in the DB.
     $this->assertCount(1, User::all());
   }
 
   /** @test */
-  public function a_user_can_login(){
-    // record response
-    // login User
-    $response = $this->loginUser();
+  public function registration_requries_a_unique_name(){
+
+    // Register User.
+    $this->registerUser('user1234', 'user@mail.com', 'Pswd@123');
     
-    // response HTTP status code is ok
-    $response->assertOk();
-    // check response format
+    // Record the response.
+    // Attempt to register a User using already existing username.
+    $response = $this->registerUser('user1234', 'user2@mail.com', 'Pswd@123');
+
+    // Response HTTP status code is 422 - invalid data.
+    $response->assertStatus(422);
+    // Check the response format.
     $this->checkResponseFormat($response);
 
-    // check data response format
-    // token is present
+    // There is 1 error.
+    $this->assertCount(1, $response['data']);
+    // The error is the correct one.
+    $this->assertEquals('The name has already been taken.', $response['data'][0]);
+  }
+
+  /** @test */
+  public function registration_requries_a_unique_email(){
+
+    // Register User.
+    $this->registerUser('user1234', 'user@mail.com', 'Pswd@123');
+    
+    // Record the response.
+    // Attempt to register a User using already existing email.
+    $response = $this->registerUser('user12345', 'user@mail.com', 'Pswd@123');
+
+    // Response HTTP status code is 422 - invalid data.
+    $response->assertStatus(422);
+    // Check the response format.
+    $this->checkResponseFormat($response);
+
+    // There is 1 error.
+    $this->assertCount(1, $response['data']);
+    // The error is the correct one.
+    $this->assertEquals('The email has already been taken.', $response['data'][0]);
+  }
+
+  /** @test */
+  public function registration_name_requries_an_alpha_dash_string(){
+    // Record the response.
+    // Attempt to register the User with a non-alpha dash name.
+    $response = $this->registerUser('user#1234', 'user@mail.com', 'Pswd@123');
+
+    // Response HTTP status code is 422 - invalid data.
+    $response->assertStatus(422);
+    // Check the response format.
+    $this->checkResponseFormat($response);
+
+    // There is 1 error.
+    $this->assertCount(1, $response['data']);
+    // The error is the correct one.
+    $this->assertEquals('The name must only contain letters, numbers, dashes and underscores.', $response['data'][0]);
+  }
+
+  /** @test */
+  public function registration_name_should_be_at_least_8_characters(){
+    // Record the response.
+    // Attempt to register the User with a 7 characters name.
+    $response = $this->registerUser('user123', 'user@mail.com', 'Pswd@123');
+
+    // Response HTTP status code is 422 - invalid data.
+    $response->assertStatus(422);
+    // Check the response format.
+    $this->checkResponseFormat($response);
+
+    // There is 1 error.
+    $this->assertCount(1, $response['data']);
+    // The error is the correct one.
+    $this->assertEquals('The name must be at least 8 characters.', $response['data'][0]);
+  }
+
+  /** @test */
+  public function registration_name_should_be_at_most_40_characters(){
+    // Record the response.
+    // Attempt to register the User with a 41 characters name.
+    $response = $this->registerUser(Str::random(41), 'user@mail.com', 'Pswd@123');
+
+    // Response HTTP status code is 422 - invalid data.
+    $response->assertStatus(422);
+    // Check the response format.
+    $this->checkResponseFormat($response);
+
+
+    // There is 1 error.
+    $this->assertCount(1, $response['data']);
+    // The error is the correct one.
+    $this->assertEquals('The name must not be greater than 40 characters.', $response['data'][0]);
+  }
+
+  /** @test */
+  public function registration_password_should_be_at_least_8_characters(){
+    // Record the response.
+    // Attempt to register the User with a 7 characters password.
+    $response = $this->registerUser('user1234', 'user@mail.com', 'Pswd@12');
+
+    // Response HTTP status code is 422 - invalid data.
+    $response->assertStatus(422);
+    // Check the response format.
+    $this->checkResponseFormat($response);
+
+    // There is 1 error.
+    $this->assertCount(1, $response['data']);
+    // The error is the correct one.
+    $this->assertEquals('The password must be at least 8 characters.', $response['data'][0]);
+  }
+
+  /** @test */
+  public function registration_password_should_be_at_most_40_characters(){
+    // Record the response.
+    // Attempt to register the User with a 41 characters password.
+    $response = $this->registerUser('user1234', 'user@mail.com', Str::random(40).'!');
+
+    // Response HTTP status code is 422 - invalid data.
+    $response->assertStatus(422);
+    // Check the response format.
+    $this->checkResponseFormat($response);
+
+    // There is 1 error.
+    $this->assertCount(1, $response['data']);
+    // The error is the correct one.
+    $this->assertEquals('The password must not be greater than 40 characters.', $response['data'][0]);
+  }
+
+  /** @test */
+  public function a_user_can_login(){
+    // Register User.
+    $this->registerUser('user1234', 'user@mail.com', 'Pswd@123');
+
+    // Record the response.
+    // Login User.
+    $response = $this->loginUser('user@mail.com', 'Pswd@123');
+
+    // Response HTTP status code is ok.
+    $response->assertOk();
+    // Check the response format.
+    $this->checkResponseFormat($response);
+
+    // Check data response format.
+    // Token is present.
     $this->assertArrayHasKey('token', $response['data']);
-    // user data is present
+    // User data is present.
     $this->assertArrayHasKey('user', $response['data']);
-    // user data has all the valid keys
+    // User data has all of the valid keys.
     $this->assertArrayHasKey('id', $response['data']['user']);
     $this->assertArrayHasKey('name', $response['data']['user']);
     $this->assertArrayHasKey('clothes', $response['data']);
@@ -87,33 +223,26 @@ class UserManagmentTest extends TestCase
   }
 
   /** @test */
-  public function a_logged_in_user_can_make_a_request_only_a_logged_in_user_should_be_able_to(){
-    // login user
-    $this->loginUser();
-    // record a response
-    // get Clothes
-    $response = $this->getJSON('api/clothes');
-    
-    // response HTTP status code is ok
-    $response->assertOk();
-    // check response format
-    $this->checkResponseFormat($response);
-
-  }
-
-  /** @test */
   public function a_user_can_logout(){
 
-    // log in a User
-    $this->loginUser();
+    // Register User.
+    $this->registerUser('user1234', 'user@mail.com', 'Pswd@123');
 
-    // record a response
-    // logout as a User
-    $response = $this->postJson('api/logout');
+    // Login User.
+    $response = $this->loginUser('user@mail.com', 'Pswd@123');
 
-    // response HTTP status code is ok
+    // Get token.
+    $token = 'Bearer ' . $response['data']['token'];
+
+    // Record the response.
+    // Logout User.
+    $response = $this->withHeaders([
+      'Authorization' => $token,
+    ])->postJson('api/logout');
+
+    // Response HTTP status code is ok.
     $response->assertOk();
-    // check response format
+    // Check the response format.
     $this->checkResponseFormat($response);
     
   }

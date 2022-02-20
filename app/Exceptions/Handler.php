@@ -14,7 +14,7 @@ class Handler extends ExceptionHandler
      * @var array
      */
     protected $dontReport = [
-        //
+      //
     ];
 
     /**
@@ -23,9 +23,9 @@ class Handler extends ExceptionHandler
      * @var array
      */
     protected $dontFlash = [
-        'current_password',
-        'password',
-        'password_confirmation',
+      'current_password',
+      'password',
+      'password_confirmation',
     ];
 
     /**
@@ -33,16 +33,17 @@ class Handler extends ExceptionHandler
      *
      * @return void
      */
-    public function register()
-    {
-      // failed login check
+    public function register(){
+
+      // Failed login check.
       $this->renderable(function (\Illuminate\Auth\AuthenticationException $e, $request) {
+        dd($request);
         if ($request->is('api/*')) {
           return response()->json([
             // title
-            'title' => 'Login check',
+            'title' => 'Login check.',
             // message
-            'message' => 'Login check failed',
+            'message' => 'Login check failed.',
             // message should be displayed
             'write' => false,
             // additional data
@@ -55,7 +56,7 @@ class Handler extends ExceptionHandler
     protected function invalidJson($request, ValidationException $exception){
       
       return response()->json([
-        'title' => 'Data validation error',
+        'title' => 'Data validation error.',
         'message' => $exception->errors(),
         'write' => true,
         'data' => new \stdClass()
