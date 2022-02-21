@@ -1,46 +1,134 @@
 <template>
-  <div class="container h-100">
-    <div class="row h-100 align-items-center">
-      <div class="col-12 col-md-6 offset-md-3">
-        <div class="card shadow sm">
-          <div class="card-body">
-              <h1 class="text-center">Register</h1>
-              <hr/>
-              <form action="javascript:void(0)" @submit="register" class="row" method="post">
-                <div class="form-group col-12">
-                  <label for="name" class="font-weight-bold">Name</label>
-                  <input type="text" name="name" v-model="user.name" id="name" placeholder="Enter name" class="form-control">
-                </div>
-                <div class="form-group col-12">
-                  <label for="email" class="font-weight-bold">Email</label>
-                  <input type="text" name="email" v-model="user.email" id="email" placeholder="Enter Email" class="form-control">
-                </div>
-                <div class="form-group col-12">
-                  <label for="password" class="font-weight-bold">Password</label>
-                  <input type="password" name="password" v-model="user.password" id="password" placeholder="Enter Password" class="form-control">
-                </div>
-                <div class="form-group col-12">
-                  <label for="password_confirmation" class="font-weight-bold">Confirm Password</label>
-                  <input type="password_confirmation" name="password_confirmation" v-model="user.password_confirmation" id="password_confirmation" placeholder="Enter Password" class="form-control">
-                </div>
-                <div class="col-12 mb-2">
-                  <button type="submit" :disabled="processing" class="btn btn-primary btn-block">
-                    {{ processing ? "Please wait" : "Register" }}
-                  </button>
-                </div>
-                <div class="col-12 text-center">
-                  <label>Already have an account? <router-link :to="{name:'login'}">Login Now!</router-link></label>
-                </div>
-              </form>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
+  <v-container grid-list-xs>
+    <v-card
+      max-width="600"
+      class="mx-auto"
+    >
+      <validation-observer
+        ref="observer"
+        v-slot="{ invalid }"
+      >
+      
+        <form @submit.prevent="submit">
+
+          <v-card>
+
+            <v-card-title>Register</v-card-title>
+
+            <v-card-text>
+
+              <validation-provider
+                v-slot="{ errors }"
+                name="name"
+                :rules="user.name.rules"
+              >
+
+                <v-text-field
+                  v-model="user.name.value"
+                  :error-messages="errors"
+                  label="Name"
+                ></v-text-field>
+
+              </validation-provider>
+
+              <validation-provider
+                v-slot="{ errors }"
+                name="email"
+                :rules="user.email.rules"
+              >
+
+                <v-text-field
+                  v-model="user.email.value"
+                  :error-messages="errors"
+                  label="Email"
+                ></v-text-field>
+
+              </validation-provider>
+
+              <validation-provider
+                v-slot="{ errors }"
+                name="password"
+                :rules="{ 
+                  required: true,
+                  min: 8,
+                  max: 40,
+                  regex: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/,
+                }"
+              >
+
+                <v-text-field
+                  v-model="user.password.value"
+                  :error-messages="errors"
+                  label="Password"
+                ></v-text-field>
+
+              </validation-provider>
+
+              <validation-provider
+                v-slot="{ errors }"
+                name="password_confirmation"
+                :rules="user.password_confirmation.rules"
+              >
+
+                <v-text-field
+                  v-model="user.password_confirmation.value"
+                  :error-messages="errors"
+                  label="Confirm Password"
+                ></v-text-field>
+
+              </validation-provider>
+
+              <v-alert type="info" outlined>
+                Password should contain at least one of the following:<br>
+                <ul>
+                  <li>lowercase letter</li>
+                  <li>uppercase letter</li>
+                  <li>special symbol</li>
+                </ul>
+              </v-alert>
+
+              <v-divider></v-divider>
+
+              <div class="col-12 text-center">
+                <label>Already have an account? <router-link :to="{name:'login'}">Login Now!</router-link></label>
+              </div>
+            
+            </v-card-text>
+
+            <v-card-actions
+              class="d-flex justify-center"
+            >
+              
+              <v-btn
+                color="success"
+                type="submit"
+                :disabled="invalid"
+                x-large
+              >
+                Submit
+              </v-btn>
+
+              <v-btn
+                @click="clear"
+                color="warning"
+                x-large
+              >
+                Clear
+              </v-btn>
+
+            </v-card-actions>       
+
+          </v-card>
+
+        </form>
+
+      </validation-observer>
+    </v-card>
+  </v-container>
 </template>
 
 <script>
-import { mapActions } from 'vuex'
+
 export default {
 
   name:'register',
@@ -48,32 +136,68 @@ export default {
   data(){
     return {
       user:{
-        name:"",
-        email:"",
-        password:"",
-        password_confirmation:""
+        name: {
+          value: '',
+          rules: {
+            'required': true,
+            'alpha_dash': true,
+            'min': 8,
+            'max': 40
+          }
+        },
+        email: {
+          value: '',
+          rules: {
+            'required': true,
+            'email': true
+          }
+        },
+        password: {
+          value: '',
+        },
+        password_confirmation: {
+          value: '',
+          rules: {
+            'required': true,
+            'confirmed': 'password'
+          }
+        }
       },
-      processing:false
+      processing: false
     }
   },
   methods:{
-    // registers a user
-    register(){
-      // disable register button
+    // Registers a User.
+    submit(){
+      // Disable register button.
       this.processing = true
-      // register a user
-      axios.post('/register',this.user)
-      // registeration success
-      .then(response=>{
-        // push to login
+      // Register a User.
+      axios.post('/register', {
+        'name': this.user.name.value,
+        'email': this.user.email.value,
+        'password': this.user.password.value
+      })
+      // Registeration success.
+      .then(response=> {
+        // Push to login.
         this.$router.push('login');
       })
-      // registration failed
-      .catch(error =>{
-        // enable register button
+      // Registration failed.
+      .catch(error => {
+        // Enable register button.
         this.processing = false;
       });
-    }
+    },
+
+    // Clears all input fields.
+    clear(){
+      // Itterate through all input fields.
+      for(let value in this.user){
+        // Reset input field.
+        this.user[value] = '';
+      }
+    },
+
   }
 }
 </script>
