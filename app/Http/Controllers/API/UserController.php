@@ -13,6 +13,7 @@ use App\Models\Cloth;
 use App\Models\Day;
 
 use App\Http\Requests\UserRegistrationRequest;
+use App\Http\Requests\UserLoginRequest;
 
 class UserController extends Controller {
   
@@ -104,7 +105,7 @@ class UserController extends Controller {
   /**
    * Login
    */
-  public function login(Request $request){
+  public function login(UserLoginRequest $request){
 
     // Set API response title.
     $this->response['title'] = 'Login attempt';

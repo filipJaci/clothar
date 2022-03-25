@@ -68,14 +68,10 @@ class UserManagmentTest extends TestCase{
   }
 
   /** @test */
-  public function registration_requries_a_unique_name(){
-
-    // Register User.
-    $this->registerUser('user1234', 'user@mail.com', 'Pswd@123');
-    
+  public function registration_email_should_be_a_valid_email(){
     // Record the response.
-    // Attempt to register a User using already existing username.
-    $response = $this->registerUser('user1234', 'user2@mail.com', 'Pswd@123');
+    // Attempt to register the User with an invalid email.
+    $response = $this->registerUser('user1234', 'usermail.com', 'Pswd@123');
 
     // Response HTTP status code is 422 - invalid data.
     $response->assertStatus(422);
@@ -85,7 +81,7 @@ class UserManagmentTest extends TestCase{
     // There is 1 error.
     $this->assertCount(1, $response['data']);
     // The error is the correct one.
-    $this->assertEquals('The name has already been taken.', $response['data'][0]);
+    $this->assertEquals('The email must be a valid email address.', $response['data'][0]);
   }
 
   /** @test */
@@ -107,6 +103,27 @@ class UserManagmentTest extends TestCase{
     $this->assertCount(1, $response['data']);
     // The error is the correct one.
     $this->assertEquals('The email has already been taken.', $response['data'][0]);
+  }
+
+  /** @test */
+  public function registration_requries_a_unique_name(){
+
+    // Register User.
+    $this->registerUser('user1234', 'user@mail.com', 'Pswd@123');
+    
+    // Record the response.
+    // Attempt to register a User using already existing username.
+    $response = $this->registerUser('user1234', 'user2@mail.com', 'Pswd@123');
+
+    // Response HTTP status code is 422 - invalid data.
+    $response->assertStatus(422);
+    // Check the response format.
+    $this->checkResponseFormat($response);
+
+    // There is 1 error.
+    $this->assertCount(1, $response['data']);
+    // The error is the correct one.
+    $this->assertEquals('The name has already been taken.', $response['data'][0]);
   }
 
   /** @test */
@@ -247,23 +264,6 @@ class UserManagmentTest extends TestCase{
   }
 
   /** @test */
-  public function registration_email_should_be_a_valid_email(){
-    // Record the response.
-    // Attempt to register the User with an invalid email.
-    $response = $this->registerUser('user1234', 'usermail.com', 'Pswd@123');
-
-    // Response HTTP status code is 422 - invalid data.
-    $response->assertStatus(422);
-    // Check the response format.
-    $this->checkResponseFormat($response);
-
-    // There is 1 error.
-    $this->assertCount(1, $response['data']);
-    // The error is the correct one.
-    $this->assertEquals('The email must be a valid email address.', $response['data'][0]);
-  }
-
-  /** @test */
   public function a_user_can_login(){
     // Register User.
     $this->registerUser('user1234', 'user@mail.com', 'Pswd@123');
@@ -288,6 +288,95 @@ class UserManagmentTest extends TestCase{
     $this->assertArrayHasKey('clothes', $response['data']);
     $this->assertArrayHasKey('days', $response['data']);
 
+  }
+
+  /** @test */
+  public function login_email_should_be_a_valid_email(){
+
+    // Display more accurate errors.
+    $this->withoutExceptionHandling();
+
+    // Record the response.
+    // Attempt to login the User with an invalid email.
+    $response = $this->loginUser('usermail.com', 'Pswd@123');
+
+    // Response HTTP status code is 422 - invalid data.
+    $response->assertStatus(422);
+    // Check the response format.
+    $this->checkResponseFormat($response);
+
+    // There is 1 error.
+    $this->assertCount(1, $response['data']);
+    // The error is the correct one.
+    $this->assertEquals('The email must be a valid email address.', $response['data'][0]);
+  }
+
+  /** @test */
+  public function login_password_should_be_at_least_8_characters(){
+    // Record the response.
+    // Attempt to login the User with a 7 characters password.
+    $response = $this->loginUser('user@mail.com', 'Pswd@12');
+
+    // Response HTTP status code is 422 - invalid data.
+    $response->assertStatus(422);
+    // Check the response format.
+    $this->checkResponseFormat($response);
+
+    // There is 1 error.
+    $this->assertCount(1, $response['data']);
+    // The error is the correct one.
+    $this->assertEquals('The password must be at least 8 characters.', $response['data'][0]);
+  }
+
+  /** @test */
+  public function login_password_should_be_at_most_40_characters(){
+    // Record the response.
+    // Attempt to login the User with a 41 characters password.
+    $response = $this->loginUser('user@mail.com', Str::random(40).'!');
+
+    // Response HTTP status code is 422 - invalid data.
+    $response->assertStatus(422);
+    // Check the response format.
+    $this->checkResponseFormat($response);
+
+    // There is 1 error.
+    $this->assertCount(1, $response['data']);
+    // The error is the correct one.
+    $this->assertEquals('The password must not be greater than 40 characters.', $response['data'][0]);
+  }
+
+  /** @test */
+  public function login_password_should_contain_at_least_one_lowercase_letter(){
+    // Record the response.
+    // Attempt to login the User without a lowercase character.
+    $response = $this->loginUser('user@mail.com', 'PSWD@123');
+
+    // Response HTTP status code is 422 - invalid data.
+    $response->assertStatus(422);
+    // Check the response format.
+    $this->checkResponseFormat($response);
+
+    // There is 1 error.
+    $this->assertCount(1, $response['data']);
+    // The error is the correct one.
+    $this->assertEquals('The password format is invalid.', $response['data'][0]);
+  }
+
+  /** @test */
+  public function login_password_should_contain_at_least_one_uppercase_letter(){
+    // Record the response.
+    // Attempt to login the User without a lowercase character.
+    $response = $this->loginUser('user@mail.com', 'pswd@123');
+
+    // Response HTTP status code is 422 - invalid data.
+    $response->assertStatus(422);
+    // Check the response format.
+    $this->checkResponseFormat($response);
+
+    // There is 1 error.
+    $this->assertCount(1, $response['data']);
+    // The error is the correct one.
+    $this->assertEquals('The password format is invalid.', $response['data'][0]);
   }
 
   /** @test */
