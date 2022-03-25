@@ -196,6 +196,23 @@ class UserManagmentTest extends TestCase{
   }
 
   /** @test */
+  public function registration_email_should_be_a_valid_email(){
+    // Record the response.
+    // Attempt to register the User with an invalid email.
+    $response = $this->registerUser('user1234', 'usermail.com', 'Pswd@123');
+
+    // Response HTTP status code is 422 - invalid data.
+    $response->assertStatus(422);
+    // Check the response format.
+    $this->checkResponseFormat($response);
+
+    // There is 1 error.
+    $this->assertCount(1, $response['data']);
+    // The error is the correct one.
+    $this->assertEquals('The email must be a valid email address.', $response['data'][0]);
+  }
+
+  /** @test */
   public function a_user_can_login(){
     // Register User.
     $this->registerUser('user1234', 'user@mail.com', 'Pswd@123');
@@ -246,4 +263,5 @@ class UserManagmentTest extends TestCase{
     $this->checkResponseFormat($response);
     
   }
+
 }
