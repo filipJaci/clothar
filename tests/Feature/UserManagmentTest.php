@@ -196,6 +196,57 @@ class UserManagmentTest extends TestCase{
   }
 
   /** @test */
+  public function registration_password_should_contain_at_least_one_lowercase_letter(){
+    // Record the response.
+    // Attempt to register the User without a lowercase character.
+    $response = $this->registerUser('user1234', 'user@mail.com', 'PSWD@123');
+
+    // Response HTTP status code is 422 - invalid data.
+    $response->assertStatus(422);
+    // Check the response format.
+    $this->checkResponseFormat($response);
+
+    // There is 1 error.
+    $this->assertCount(1, $response['data']);
+    // The error is the correct one.
+    $this->assertEquals('The password format is invalid.', $response['data'][0]);
+  }
+
+  /** @test */
+  public function registration_password_should_contain_at_least_one_uppercase_letter(){
+    // Record the response.
+    // Attempt to register the User without a lowercase character.
+    $response = $this->registerUser('user1234', 'user@mail.com', 'pswd@123');
+
+    // Response HTTP status code is 422 - invalid data.
+    $response->assertStatus(422);
+    // Check the response format.
+    $this->checkResponseFormat($response);
+
+    // There is 1 error.
+    $this->assertCount(1, $response['data']);
+    // The error is the correct one.
+    $this->assertEquals('The password format is invalid.', $response['data'][0]);
+  }
+
+  /** @test */
+  public function registration_password_should_contain_at_least_one_special_character(){
+    // Record the response.
+    // Attempt to register the User without a lowercase character.
+    $response = $this->registerUser('user1234', 'user@mail.com', 'pswd1234');
+
+    // Response HTTP status code is 422 - invalid data.
+    $response->assertStatus(422);
+    // Check the response format.
+    $this->checkResponseFormat($response);
+
+    // There is 1 error.
+    $this->assertCount(1, $response['data']);
+    // The error is the correct one.
+    $this->assertEquals('The password format is invalid.', $response['data'][0]);
+  }
+
+  /** @test */
   public function registration_email_should_be_a_valid_email(){
     // Record the response.
     // Attempt to register the User with an invalid email.

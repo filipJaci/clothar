@@ -81,9 +81,9 @@
               <v-alert type="info" outlined>
                 Password should contain at least one of the following:<br>
                 <ul>
-                  <li>lowercase letter</li>
-                  <li>uppercase letter</li>
-                  <li>special symbol</li>
+                  <li>Lowercase letter.</li>
+                  <li>Uppercase letter.</li>
+                  <li>Special symbol: (@$!%*?&).</li>
                 </ul>
               </v-alert>
 
