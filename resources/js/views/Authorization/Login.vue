@@ -1,34 +1,92 @@
 <template>
-<div class="container h-100">
-  <div class="row h-100 align-items-center">
-    <div class="col-12 col-md-6 offset-md-3">
-      <div class="card shadow sm">
-        <div class="card-body">
-        <h1 class="text-center">Login</h1>
-        <hr/>
-        <form action="javascript:void(0)" class="row" method="post">
-          <div class="form-group col-12">
-            <label for="email" class="font-weight-bold">Email</label>
-            <input type="text" v-model="auth.email" name="email" id="email" class="form-control">
-          </div>
-          <div class="form-group col-12">
-            <label for="password" class="font-weight-bold">Password</label>
-            <input type="password" v-model="auth.password" name="password" id="password" class="form-control">
-          </div>
-          <div class="col-12 mb-2">
-            <button type="submit" :disabled="processing" @click="login" class="btn btn-primary btn-block">
-            {{ processing ? "Please wait" : "Login" }}
-            </button>
-          </div>
-          <div class="col-12 text-center">
-            <label>Don't have an account? <router-link :to="{name:'register'}">Register Now!</router-link></label>
-          </div>
+  <v-container grid-list-xs>
+    <v-card
+      max-width="600"
+      class="mx-auto"
+    >
+      <validation-observer
+        ref="observer"
+        v-slot="{ invalid }"
+      >
+      
+        <form @submit.prevent="submit">
+
+          <v-card>
+
+            <v-card-title>Login</v-card-title>
+
+            <v-card-text>
+
+              <validation-provider
+                v-slot="{ errors }"
+                name="email"
+                :rules="user.email.rules"
+              >
+
+                <v-text-field
+                  v-model="user.email.value"
+                  :error-messages="errors"
+                  label="Email"
+                ></v-text-field>
+
+              </validation-provider>
+
+              <validation-provider
+                v-slot="{ errors }"
+                name="password"
+                :rules="{ 
+                  required: true,
+                  min: 8,
+                  max: 40,
+                  regex: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/,
+                }"
+              >
+
+                <v-text-field
+                  v-model="user.password.value"
+                  :error-messages="errors"
+                  label="Password"
+                  type="password"
+                ></v-text-field>
+
+              </validation-provider>
+
+              <div class="col-12 text-center">
+                <label>Don't have an account? <router-link :to="{name:'register'}">Register Now!</router-link></label>
+              </div>
+              
+            </v-card-text>
+
+            <v-card-actions
+              class="d-flex justify-center"
+            >
+              
+              <v-btn
+                color="success"
+                type="submit"
+                :disabled="invalid"
+                x-large
+              >
+                Submit
+              </v-btn>
+
+              <v-btn
+                @click="clear"
+                color="warning"
+                x-large
+              >
+                Clear
+              </v-btn>
+
+            </v-card-actions>       
+
+          </v-card>
+
         </form>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
+
+      </validation-observer>
+    </v-card>
+  </v-container>
 </template>
 
 <script>
@@ -41,18 +99,26 @@ export default {
 
   data(){
     return {
-      // login credentials
-      auth:{
-        email:"",
-        password:""
+      // Login credentials.
+      user:{
+        email: {
+          value: '',
+          rules: {
+            'required': true,
+            'email': true
+          }
+        },
+        password: {
+          value: '',
+        }
       },
-      // toggles login button
+      // Toggles login button.
       processing: false
     }
   },
 
   methods:{
-    // registers a Vuex method
+    // Registers Vuex methods.
     ...mapActions({
       // signIn refers to login method found in auth
       signIn: 'auth/login',
@@ -62,27 +128,44 @@ export default {
       saveDays: 'days/saveDays'
     }),
 
-    // logs in user
-    login(){
-
-      //get CSRF cookie
+    // Logs in User.
+    submit(){
+      // Disable login button.
+      this.processing = true;
+      //Get CSRF cookie.
       this.axios.get('/sanctum/csrf-cookie').then(response => {
-        // run login request
-        this.axios.post('login', this.auth)
-        // login successful
+        // Run login request.
+        this.axios.post('login', {
+        'email': this.user.email.value,
+        'password': this.user.password.value
+        })
+        // Login successful.
         .then(response => {
-          // run Vuex signIn method
+          // Run Vuex signIn method.
           this.signIn(response['data']);
-          // run Vuex saveClothes method
+          // Run Vuex saveClothes method.
           this.saveClothes(response['data']['clothes']);
-          // run Vuex saveDays method
+          // Run Vuex saveDays method.
           this.saveDays(response['data']['days']);
-          // run handleLogin bus method on App
+          // Run handleLogin bus method on App.
           EventBus.$emit('handleLogin');
         })
-        // login failed
-        .catch(error => {});
-      })},
+        // Login failed.
+        .catch(error => {
+          // Enable login button.
+          this.processing = false;
+        });
+      });
+    },
+
+    // Clears all input fields.
+    clear(){
+      // Itterate through all input fields.
+      for(let value in this.user){
+        // Reset input field.
+        this.user[value] = '';
+      }
+    },
   }
 }
 </script>

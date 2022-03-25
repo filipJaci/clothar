@@ -60,6 +60,7 @@
                   v-model="user.password.value"
                   :error-messages="errors"
                   label="Password"
+                  type="password"
                 ></v-text-field>
 
               </validation-provider>
@@ -74,6 +75,7 @@
                   v-model="user.password_confirmation.value"
                   :error-messages="errors"
                   label="Confirm Password"
+                  type="password"
                 ></v-text-field>
 
               </validation-provider>
@@ -135,6 +137,7 @@ export default {
 
   data(){
     return {
+      // Registration credentials.
       user:{
         name: {
           value: '',
@@ -163,6 +166,7 @@ export default {
           }
         }
       },
+      // Toggles register button.
       processing: false
     }
   },
@@ -170,7 +174,7 @@ export default {
     // Registers a User.
     submit(){
       // Disable register button.
-      this.processing = true
+      this.processing = true;
       // Register a User.
       axios.post('/register', {
         'name': this.user.name.value,
