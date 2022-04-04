@@ -37,6 +37,17 @@ class UserManagmentTest extends TestCase{
     ]);
   }
 
+  // Verifies a User.
+  private function verifyEmail($email){
+    // Get User verification token.
+    $token = User::where('email', $email)->value('email_verification_token');
+
+    // Verify email.
+    return $this->post('/api/verify/', [
+      'token' => $token
+    ]);
+  }
+
   // Logs in User.
   private function loginUser($email, $password){
 
@@ -282,14 +293,9 @@ class UserManagmentTest extends TestCase{
     // Register User.
     $this->registerUser('user1234', 'user@mail.com', 'Pswd@123');
 
-    // Get User verification token.
-    $token = User::first()->value('email_verification_token');
-
     // Record the response.
     // Verify email.
-    $response = $this->post('/api/verify/', [
-      'token' => $token
-    ]);
+    $response = $this->verifyEmail('user@mail.com');
 
     // Response HTTP status code is ok.
     $response->assertOk();
@@ -301,9 +307,28 @@ class UserManagmentTest extends TestCase{
   }
 
   /** @test */
-  public function a_user_can_login(){
+  public function unverified_user_can_not_log_in(){
     // Register User.
     $this->registerUser('user1234', 'user@mail.com', 'Pswd@123');
+
+    // Record the response.
+    // Login User.
+    $response = $this->loginUser('user@mail.com', 'Pswd@123');
+
+    // Response HTTP status code is 403 - Forbidden.
+    $response->assertStatus(403);
+    // Check the response format.
+    $this->checkResponseFormat($response);
+  }
+
+  /** @test */
+  public function verified_user_can_log_in(){
+    // Register User.
+    $this->registerUser('user1234', 'user@mail.com', 'Pswd@123');
+    // Verify User.
+    $user = User::first();
+    $user->email_verified = true;
+    $user->save();
 
     // Record the response.
     // Login User.
@@ -328,28 +353,12 @@ class UserManagmentTest extends TestCase{
   }
 
   /** @test */
-  public function login_email_should_be_a_valid_email(){
-
-    // Display more accurate errors.
-    $this->withoutExceptionHandling();
-
-    // Record the response.
-    // Attempt to login the User with an invalid email.
-    $response = $this->loginUser('usermail.com', 'Pswd@123');
-
-    // Response HTTP status code is 422 - invalid data.
-    $response->assertStatus(422);
-    // Check the response format.
-    $this->checkResponseFormat($response);
-
-    // There is 1 error.
-    $this->assertCount(1, $response['data']);
-    // The error is the correct one.
-    $this->assertEquals('The email must be a valid email address.', $response['data'][0]);
-  }
-
-  /** @test */
   public function login_password_should_be_at_least_8_characters(){
+    // Register User.
+    $this->registerUser('user1234', 'user@mail.com', 'Pswd@123');
+    // Verify email.
+    $response = $this->verifyEmail('user@mail.com');
+
     // Record the response.
     // Attempt to login the User with a 7 characters password.
     $response = $this->loginUser('user@mail.com', 'Pswd@12');
@@ -367,6 +376,11 @@ class UserManagmentTest extends TestCase{
 
   /** @test */
   public function login_password_should_be_at_most_40_characters(){
+    // Register User.
+    $this->registerUser('user1234', 'user@mail.com', 'Pswd@123');
+    // Verify email.
+    $response = $this->verifyEmail('user@mail.com');
+
     // Record the response.
     // Attempt to login the User with a 41 characters password.
     $response = $this->loginUser('user@mail.com', Str::random(40).'!');
@@ -384,6 +398,11 @@ class UserManagmentTest extends TestCase{
 
   /** @test */
   public function login_password_should_contain_at_least_one_lowercase_letter(){
+    // Register User.
+    $this->registerUser('user1234', 'user@mail.com', 'Pswd@123');
+    // Verify email.
+    $response = $this->verifyEmail('user@mail.com');
+
     // Record the response.
     // Attempt to login the User without a lowercase character.
     $response = $this->loginUser('user@mail.com', 'PSWD@123');
@@ -401,6 +420,11 @@ class UserManagmentTest extends TestCase{
 
   /** @test */
   public function login_password_should_contain_at_least_one_uppercase_letter(){
+    // Register User.
+    $this->registerUser('user1234', 'user@mail.com', 'Pswd@123');
+    // Verify email.
+    $response = $this->verifyEmail('user@mail.com');
+
     // Record the response.
     // Attempt to login the User without a lowercase character.
     $response = $this->loginUser('user@mail.com', 'pswd@123');
@@ -418,9 +442,10 @@ class UserManagmentTest extends TestCase{
 
   /** @test */
   public function a_user_can_logout(){
-
     // Register User.
     $this->registerUser('user1234', 'user@mail.com', 'Pswd@123');
+    // Verify email.
+    $response = $this->verifyEmail('user@mail.com');
 
     // Login User.
     $response = $this->loginUser('user@mail.com', 'Pswd@123');
