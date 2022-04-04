@@ -23,6 +23,8 @@ Route::post('login', [UserController::class, 'login']);
 Route::post('register', [UserController::class, 'register']);
 Route::post('logout', [UserController::class, 'logout'])->middleware('auth:sanctum');
 
+Route::post('verify', [UserController::class, 'verifyEmail']);
+
 // Clothes.
 Route::group(['prefix' => 'clothes', 'middleware' => 'auth:sanctum'], function () {
   Route::get('/', [ClothController::class, 'index']);

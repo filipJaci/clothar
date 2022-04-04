@@ -277,6 +277,30 @@ class UserManagmentTest extends TestCase{
   }
 
   /** @test */
+  public function user_can_verify_their_email(){
+    $this->withoutExceptionHandling();
+    // Register User.
+    $this->registerUser('user1234', 'user@mail.com', 'Pswd@123');
+
+    // Get User verification token.
+    $token = User::first()->value('email_verification_token');
+
+    // Record the response.
+    // Verify email.
+    $response = $this->post('/api/verify/', [
+      'token' => $token
+    ]);
+
+    // Response HTTP status code is ok.
+    $response->assertOk();
+    // Check the response format.
+    $this->checkResponseFormat($response);
+
+    // Confirm that User is truly verified.
+    $this->assertEquals(User::first()->value('email_verified'), 1);
+  }
+
+  /** @test */
   public function a_user_can_login(){
     // Register User.
     $this->registerUser('user1234', 'user@mail.com', 'Pswd@123');

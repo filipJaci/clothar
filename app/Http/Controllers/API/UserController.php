@@ -19,6 +19,7 @@ use App\Mail\EmailConfirmation;
 
 use App\Http\Requests\UserRegistrationRequest;
 use App\Http\Requests\UserLoginRequest;
+use App\Http\Requests\EmailConfirmationRequest;
 
 class UserController extends Controller {
   
@@ -125,6 +126,32 @@ class UserController extends Controller {
       }
 
     }
+
+    // Return the response.
+    return response()->json($this->response, $this->code);
+  }
+
+  public function verifyEmail(EmailConfirmationRequest $request){
+    // Set API response title.
+    $this->response['title'] = 'Verification attempt';
+
+    // Get User that needs to be verified.
+    $user = User::where('email_verification_token', $request->token)->first();
+    // User is already verified.
+    if($user->email_verified){
+      $this->response['message'] = 'This User has already been verified, you may log in.';
+    }
+    // User hasn't been verified before.
+    else{
+      // Verify User.
+      $user->email_verified = true;
+      $user->save();
+      // Set API response message.
+      $this->response['message'] = 'Verification successful, you may log in.';
+    }
+
+    // Set API response code.
+    $this->code = 200;
 
     // Return the response.
     return response()->json($this->response, $this->code);
