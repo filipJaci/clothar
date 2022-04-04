@@ -5,7 +5,7 @@ namespace Tests\Unit;
 use Tests\TestCase;
 use Illuminate\Support\Facades\Mail;
 
-use App\Mail\AccountConfirmation;
+use App\Mail\EmailConfirmation;
 
 class MailTest extends TestCase{
 
@@ -20,9 +20,9 @@ class MailTest extends TestCase{
       // Prevent sending an actual email.
       Mail::fake();
       // Attempt to send an email.
-      Mail::to('<email_address>')->send(new AccountConfirmation());
+      Mail::to('<email_address>')->send(new EmailConfirmation());
 
       // An email can be sent.
-      Mail::assertSent(AccountConfirmation::class);
+      Mail::assertSent(EmailConfirmation::class);
     }
 }

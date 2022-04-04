@@ -6,6 +6,9 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Str;
 use Tests\TestCase;
 use Illuminate\Routing\Middleware\ThrottleRequests;
+use Illuminate\Support\Facades\Mail;
+
+use App\Mail\EmailConfirmation;
 
 use App\Models\user;
 
@@ -24,6 +27,9 @@ class UserManagmentTest extends TestCase{
 
   // Registers a User.
   private function registerUser($name, $email, $password){
+    // Prevent sending an actual email.
+    Mail::fake();
+    // Register User.
     return $this->post('api/register', [
       'name' => $name,
       'email' => $email,
@@ -53,7 +59,6 @@ class UserManagmentTest extends TestCase{
   
   /** @test */
   public function a_user_can_register(){
-
     // Record the response.
     // Register User.
     $response = $this->registerUser('user1234', 'user@mail.com', 'Pswd@123');
@@ -65,6 +70,14 @@ class UserManagmentTest extends TestCase{
 
     // There is 1 User in the DB.
     $this->assertCount(1, User::all());
+  }
+
+  /** @test */
+  public function registration_sends_confirmation_email(){
+    // Register User.
+    $response = $this->registerUser('user1234', 'user@mail.com', 'Pswd@123');
+    // Confirmation email was sent.
+    Mail::assertSent(EmailConfirmation::class);
   }
 
   /** @test */

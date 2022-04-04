@@ -26,7 +26,8 @@ class UserFactory extends Factory
         // Makes sure that there is a required symbol in the name.
         'name' => $this->faker->unique()->name().'A!',
         'email' => $this->faker->unique()->safeEmail(),
-        'email_verified_at' => now(),
+        'email_verified' => false,
+        'email_verification_token' => Str::random(10),
         'password' => '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', // password
         'remember_token' => Str::random(10),
       ];

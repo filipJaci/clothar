@@ -7,10 +7,15 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use App\Http\Controllers\Controller;
+use Illuminate\Database\QueryException;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Str;
 
 use App\Models\User;
 use App\Models\Cloth;
 use App\Models\Day;
+
+use App\Mail\EmailConfirmation;
 
 use App\Http\Requests\UserRegistrationRequest;
 use App\Http\Requests\UserLoginRequest;
@@ -51,16 +56,39 @@ class UserController extends Controller {
    */
   public function register(UserRegistrationRequest $request){
 
-    // Successful register.
+    // Successful registration.
     try {
       // Make a new User instance.
       $user = new User();
+
+      // Verification token.
+      $token = null;
+
+      // While token is null:
+      while($token === null){
+        // Set new token.
+        $token = Str::random(10);
+
+        // Number of Users with the given token.
+        $numberOfUsersWithTheGivenToken = User::where(['token' => $token])->count();
+        // There are Users with the given token.
+        if($numberOfUsersWithTheGivenToken > 0){
+          // Reset token.
+          $token = null;
+        }
+      }
+
       // Set field values.
       $user->name = $request->name;
       $user->email = $request->email;
       $user->password = Hash::make($request->password);
+      $user->email_verified = false;
+      $user->email_verification_token = $token;
       // Save User.
       $user->save();
+
+      // Send confirmation email.
+      Mail::to($user->email)->send(new EmailConfirmation());
 
       // Set API response code
       $this->code = 200;
@@ -69,8 +97,8 @@ class UserController extends Controller {
       $this->response['title'] = 'Registration successful';
       $this->response['message'] = 'You may Login now.';
     }
-    // failed register
-    catch (\Illuminate\Database\QueryException $ex) {
+    // Failed registration.
+    catch (QueryException $ex) {
 
       if($ex->errorInfo[2] === 'UNIQUE constraint failed: users.email'){
         // Set API response code.

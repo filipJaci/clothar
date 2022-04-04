@@ -7,7 +7,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
 
-class AccountConfirmation extends Mailable
+class EmailConfirmation extends Mailable
 {
     use Queueable, SerializesModels;
 
@@ -28,6 +28,6 @@ class AccountConfirmation extends Mailable
      */
     public function build()
     {
-        return $this->markdown('emails.AccountConfirmation');
+        return $this->markdown('emails.EmailConfirmation');
     }
 }
