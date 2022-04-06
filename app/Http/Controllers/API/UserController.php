@@ -82,7 +82,7 @@ class UserController extends Controller {
 
       // Set API response messages.
       $this->response['title'] = 'Registration successful';
-      $this->response['message'] = 'You may Login now.';
+      $this->response['message'] = 'We\'ve sent you a verification email. Please confirm your email address to continue.';
     }
     // Failed registration.
     catch (QueryException $ex) {
