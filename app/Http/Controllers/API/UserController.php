@@ -117,7 +117,9 @@ class UserController extends Controller {
     return response()->json($this->response, $this->code);
   }
 
-  // Verification.
+  /**
+   * Verification
+   */
   public function verifyEmail(EmailConfirmationRequest $request){
     // Set API response title.
     $this->response['title'] = 'Verification attempt';
@@ -179,17 +181,29 @@ class UserController extends Controller {
 
     // Succusseful login.
     if (Auth::attempt($credentials)) {
-      // Set API success code.
-      $this->code = 200;
-      // Set API response message.
-      $this->response['message'] = 'Login successful.';
-      // Set and store session token.
-      $this->response['data']['token'] = auth()->user()->createToken('API Token')->plainTextToken;
-      // Set user infomrmation.
-      $this->response['data']['user']['id'] = auth()->id();
-      $this->response['data']['user']['name'] = auth()->user()->name;
-      $this->response['data']['clothes'] = Cloth::all();
-      $this->response['data']['days'] = Day::with('clothes')->get();
+      // User is verified.
+      if(auth()->user()->email_verified){
+        // Set API success code.
+        $this->code = 200;
+        // Set API response message.
+        $this->response['message'] = 'Login successful.';
+        // Set and store session token.
+        $this->response['data']['token'] = auth()->user()->createToken('API Token')->plainTextToken;
+        // Set user infomrmation.
+        $this->response['data']['user']['id'] = auth()->id();
+        $this->response['data']['user']['name'] = auth()->user()->name;
+        $this->response['data']['clothes'] = Cloth::all();
+        $this->response['data']['days'] = Day::with('clothes')->get();
+      }
+      // User is not verified.
+      else{
+        // Drop session.
+        Session::flush();
+        // Set API status code to 403 - Forbidden.
+        $this->code = 403;
+        // Set API response message.
+        $this->response['message'] = 'This account is not verified, please verify first to continue.';
+      }
     }
     
     // Failed login.
@@ -221,7 +235,7 @@ class UserController extends Controller {
       $this->response['message'] = 'Logout successful.';
     }
     
-    catch (\Illuminate\Database\QueryException $ex) {
+    catch (QueryException $ex) {
       // Set API response code.
       // 400 - Bad request - broader than conflict.
       $this->code = 400;

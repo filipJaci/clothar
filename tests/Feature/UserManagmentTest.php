@@ -333,6 +333,7 @@ class UserManagmentTest extends TestCase{
 
   /** @test */
   public function unverified_user_can_not_log_in(){
+    $this->withoutExceptionHandling();
     // Register User.
     $this->registerUser('user1234', 'user@mail.com', 'Pswd@123');
 

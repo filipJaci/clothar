@@ -19,7 +19,7 @@ use App\Http\Controllers\API\ClothDayController;
 */
 
 // Auth routes.
-Route::post('login', [UserController::class, 'login'])->middleware('verified.email');
+Route::post('login', [UserController::class, 'login']);
 Route::post('register', [UserController::class, 'register']);
 Route::post('logout', [UserController::class, 'logout'])->middleware('auth:sanctum');
 
