@@ -75,7 +75,7 @@ class UserController extends Controller {
       $user->save();
 
       // Send confirmation email.
-      Mail::to($user->email)->send(new EmailConfirmation());
+      Mail::to($user->email)->send(new EmailConfirmation($user->email_verification_token));
 
       // Set API response code
       $this->code = 200;
