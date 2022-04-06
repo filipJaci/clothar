@@ -7,6 +7,7 @@ use Illuminate\Support\Str;
 use Tests\TestCase;
 use Illuminate\Routing\Middleware\ThrottleRequests;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Carbon;
 
 use App\Mail\EmailConfirmation;
 
@@ -304,6 +305,28 @@ class UserManagmentTest extends TestCase{
 
     // Confirm that User is truly verified.
     $this->assertEquals(User::first()->value('email_verified'), 1);
+  }
+
+  /** @test */
+  public function email_can_not_be_verified_8_hours_after_being_sent(){
+    $this->withoutExceptionHandling();
+    // Register User.
+    $this->registerUser('user1234', 'user@mail.com', 'Pswd@123');
+    // Get User data.
+    $user = User::first();
+    // Subtract created_at by 8 hours.
+    $user->created_at = $user->created_at->subHours(8);
+    // Save changes.
+    $user->save();
+
+    // Record the response.
+    // Verify email.
+    $response = $this->verifyEmail('user@mail.com');
+
+    // Response HTTP status code is 410 - Gone (expired).
+    $response->assertStatus(410);
+    // Check the response format.
+    $this->checkResponseFormat($response);
   }
 
   /** @test */

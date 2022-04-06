@@ -10,6 +10,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
+use Illuminate\Support\Carbon;
 
 use App\Models\User;
 use App\Models\Cloth;
@@ -131,6 +132,7 @@ class UserController extends Controller {
     return response()->json($this->response, $this->code);
   }
 
+  // Verification.
   public function verifyEmail(EmailConfirmationRequest $request){
     // Set API response title.
     $this->response['title'] = 'Verification attempt';
@@ -139,19 +141,31 @@ class UserController extends Controller {
     $user = User::where('email_verification_token', $request->token)->first();
     // User is already verified.
     if($user->email_verified){
+      // Set API response code.
+      $this->code = 200;
+      // Set API response message.
       $this->response['message'] = 'This User has already been verified, you may log in.';
     }
     // User hasn't been verified before.
     else{
-      // Verify User.
-      $user->email_verified = true;
-      $user->save();
-      // Set API response message.
-      $this->response['message'] = 'Verification successful, you may log in.';
+      // User registered less than 8 hours ago.
+      if($user->created_at->diffInHours() < 8){
+        // Set API response code.
+        $this->code = 200;
+        // Verify User.
+        $user->email_verified = true;
+        $user->save();
+        // Set API response message.
+        $this->response['message'] = 'Verification successful, you may log in.';
+      }
+      // User registered more than 8 hours ago.
+      else{
+        // Set API response code.
+        $this->code = 410;
+        // Set API response message.
+        $this->response['message'] = 'Verification failed, link has expired.';
+      }
     }
-
-    // Set API response code.
-    $this->code = 200;
 
     // Return the response.
     return response()->json($this->response, $this->code);
