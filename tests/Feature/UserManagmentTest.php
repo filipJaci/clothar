@@ -314,8 +314,8 @@ class UserManagmentTest extends TestCase{
     $this->registerUser('user1234', 'user@mail.com', 'Pswd@123');
     // Get User data.
     $user = User::first();
-    // Subtract created_at by 8 hours.
-    $user->created_at = $user->created_at->subHours(8);
+    // Subtract updated_at by 8 hours.
+    $user->updated_at = $user->updated_at->subHours(8);
     // Save changes.
     $user->save();
 
@@ -327,6 +327,8 @@ class UserManagmentTest extends TestCase{
     $response->assertStatus(410);
     // Check the response format.
     $this->checkResponseFormat($response);
+    // New verification email was sent.
+    Mail::assertSent(EmailConfirmation::class);
   }
 
   /** @test */

@@ -9,7 +9,6 @@ use Illuminate\Support\Facades\Hash;
 use App\Http\Controllers\Controller;
 use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\Mail;
-use Illuminate\Support\Str;
 use Illuminate\Support\Carbon;
 
 use App\Models\User;
@@ -63,29 +62,15 @@ class UserController extends Controller {
       // Make a new User instance.
       $user = new User();
 
-      // Verification token.
-      $token = null;
-
-      // While token is null:
-      while($token === null){
-        // Set new token.
-        $token = Str::random(10);
-
-        // Number of Users with the given token.
-        $numberOfUsersWithTheGivenToken = User::where(['token' => $token])->count();
-        // There are Users with the given token.
-        if($numberOfUsersWithTheGivenToken > 0){
-          // Reset token.
-          $token = null;
-        }
-      }
+      // Generate verification token.
+      $user->generateVerificationToken();
 
       // Set field values.
       $user->name = $request->name;
       $user->email = $request->email;
       $user->password = Hash::make($request->password);
       $user->email_verified = false;
-      $user->email_verification_token = $token;
+
       // Save User.
       $user->save();
 
@@ -149,21 +134,28 @@ class UserController extends Controller {
     // User hasn't been verified before.
     else{
       // User registered less than 8 hours ago.
-      if($user->created_at->diffInHours() < 8){
+      if($user->updated_at->diffInHours() < 8){
         // Set API response code.
         $this->code = 200;
         // Verify User.
         $user->email_verified = true;
+        // Save changes.
         $user->save();
         // Set API response message.
         $this->response['message'] = 'Verification successful, you may log in.';
       }
       // User registered more than 8 hours ago.
       else{
+        // Generate new verification token.
+        $user->generateVerificationToken();
+        // Send new confirmation email.
+        Mail::to($user->email)->send(new EmailConfirmation());
+        // Save changes.
+        $user->save();
         // Set API response code.
         $this->code = 410;
         // Set API response message.
-        $this->response['message'] = 'Verification failed, link has expired.';
+        $this->response['message'] = 'Verification failed, link has expired. A new email was sent to your address.';
       }
     }
 
