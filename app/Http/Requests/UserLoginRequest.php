@@ -12,9 +12,7 @@ class UserLoginRequest extends FormRequest{
   protected function failedValidation(Validator $validator) { 
     throw new HttpResponseException(
       response()->json([
-        'title' => 'Login failed.',
-        'message' => 'There were following login errors:',
-        'write' => true,
+        'scenario' => 'login.failed.validation',
         'data' => $validator->errors()->all()
       // Response HTTP status code is 422 - invalid data.
       ], 422)

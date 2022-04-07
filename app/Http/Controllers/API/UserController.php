@@ -25,12 +25,8 @@ class UserController extends Controller {
   
   // API response
   public $response = [
-    // title
-    'title' => '',
-    // message
-    'message' => '',
-    // message should be displayed
-    'write' => true,
+    // Scenario.
+    'scenario' => '',
     // additional data
     'data' => [
       // used for session
@@ -80,37 +76,16 @@ class UserController extends Controller {
       // Set API response code
       $this->code = 200;
 
-      // Set API response messages.
-      $this->response['title'] = 'Registration successful';
-      $this->response['message'] = 'We\'ve sent you a verification email. Please confirm your email address to continue.';
+      // Set API response scenario.
+      $this->response['scenario'] = 'registration.success';
     }
     // Failed registration.
     catch (QueryException $ex) {
-
-      if($ex->errorInfo[2] === 'UNIQUE constraint failed: users.email'){
-        // Set API response code.
-        // 409 - Conflict - indication that changing credentials would help.
-        $this->code = 409;
-        // Set API response messages.
-        $this->response['title'] = 'Registration failed';
-        $this->response['message'] = 'This email is already registered.';
-      }
-      else if($ex->errorInfo[2] === 'UNIQUE constraint failed: users.name'){
-        // Set API response code.
-        // 409 - Conflict - indication that changing credentials would help.
-        $this->code = 409;
-        // Set API response messages.
-        $this->response['title'] = 'Registration failed';
-        $this->response['message'] = 'This username is already registered.';
-      }
-      else{
-        // Set API response code.
-        // 400 - Bad request - broader than conflict.
-        $this->code = 400;
-        $this->response['title'] = 'Registration failed';
-        $this->response['message'] = 'Unknown error.';
-      }
-
+      // Set API response code.
+      // 400 - Bad request - broader than conflict.
+      $this->code = 400;
+      // Set API response scenario.
+      $this->response['scenario'] = 'registration.failed.unknown';
     }
 
     // Return the response.
@@ -121,8 +96,6 @@ class UserController extends Controller {
    * Verification
    */
   public function verifyEmail(EmailConfirmationRequest $request){
-    // Set API response title.
-    $this->response['title'] = 'Verification attempt';
 
     // Get User that needs to be verified.
     $user = User::where('email_verification_token', $request->token)->first();
@@ -130,8 +103,8 @@ class UserController extends Controller {
     if($user->email_verified){
       // Set API response code.
       $this->code = 200;
-      // Set API response message.
-      $this->response['message'] = 'This User has already been verified, you may log in.';
+      // Set API response scenario.
+      $this->response['scenario'] = 'verification.success.already';
     }
     // User hasn't been verified before.
     else{
@@ -143,21 +116,21 @@ class UserController extends Controller {
         $user->email_verified = true;
         // Save changes.
         $user->save();
-        // Set API response message.
-        $this->response['message'] = 'Verification successful, you may log in.';
+        // Set API response scenario.
+        $this->response['scenario'] = 'verification.success';
       }
       // User registered more than 8 hours ago.
       else{
         // Generate new verification token.
         $user->generateVerificationToken();
         // Send new confirmation email.
-        Mail::to($user->email)->send(new EmailConfirmation());
+        Mail::to($user->email)->send(new EmailConfirmation($user->email_verification_code));
         // Save changes.
         $user->save();
         // Set API response code.
         $this->code = 410;
-        // Set API response message.
-        $this->response['message'] = 'Verification failed, link has expired. A new email was sent to your address.';
+        // Set API response scenario.
+        $this->response['scenario'] = 'verification.failed.expired';
       }
     }
 
@@ -169,10 +142,6 @@ class UserController extends Controller {
    * Login
    */
   public function login(UserLoginRequest $request){
-
-    // Set API response title.
-    $this->response['title'] = 'Login attempt';
-
     // Login credentials.
     $credentials = [
       'email' => $request->email,
@@ -185,8 +154,8 @@ class UserController extends Controller {
       if(auth()->user()->email_verified){
         // Set API success code.
         $this->code = 200;
-        // Set API response message.
-        $this->response['message'] = 'Login successful.';
+        // Set API response scenario.
+        $this->response['scenario'] = 'login.success';
         // Set and store session token.
         $this->response['data']['token'] = auth()->user()->createToken('API Token')->plainTextToken;
         // Set user infomrmation.
@@ -201,8 +170,8 @@ class UserController extends Controller {
         Session::flush();
         // Set API status code to 403 - Forbidden.
         $this->code = 403;
-        // Set API response message.
-        $this->response['message'] = 'This account is not verified, please verify first to continue.';
+        // Set API response scenario.
+        $this->response['scenario'] = 'login.failed.not-verified';
       }
     }
     
@@ -210,8 +179,8 @@ class UserController extends Controller {
     else {
       // Set API unaothorized code.
       $this->code = 401;
-      // Set API response message.
-      $this->response['message'] = 'Login failed.';
+      // Set API response scenario.
+      $this->response['scenario'] = 'login.failed.invalid';
     }
     
     // Send API response.
@@ -222,8 +191,6 @@ class UserController extends Controller {
   * Logout
   */
   public function logout(){
-    // Set API response title.
-    $this->response['title'] = 'Logout attempt.';
 
     // Attempt to logout.
     try {
@@ -231,16 +198,16 @@ class UserController extends Controller {
       Session::flush();
       // Set API success code.
       $this->code = 200;
-      // Set API response message.
-      $this->response['message'] = 'Logout successful.';
+      // Set API response scenario.
+      $this->response['scenario'] = 'logout.success';
     }
     
     catch (QueryException $ex) {
       // Set API response code.
       // 400 - Bad request - broader than conflict.
       $this->code = 400;
-      // Set API response message.
-      $this->response['message'] = 'Logout failed: - ' . $ex->getMessage();
+      // Set API response scenario.
+      $this->response['scenario'] = 'logout.failed';
     }
 
     // Send API response.

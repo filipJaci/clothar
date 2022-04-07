@@ -201,40 +201,40 @@ import ClothIndex from '../Cloth/ClothIndex';
     }),
 
     methods: {
-      // load Clothes
+      // Loads Clothes.
       loadClothes(){
-        // load Clothes
+        // Load Clothes.
         this.clothes = this.$store.state.clothes.clothes;
       },
 
-      // load Days
+      // Loads Days
       loadDays(){
-        // load Days
+        // Load Days.
         this.days = this.$store.state.days.days;
-        // set worn
+        // Set worn.
         this.setWorn();
       },
 
-      // sets worn array
+      // Sets worn array.
       setWorn(){
-        // reset previous worn data
+        // Reset previous worn data.
         this.worn = [];
 
-        // loop through all days
+        // Loop through all Days.
         this.days.forEach(day => {
 
-          // set formated date
+          // Set formated date.
           let formatedDate = day.date.slice(0,10);
 
-          // loop through all clothes worn on a day
+          // Loop through all Clothes worn on a Day.
           day.clothes.forEach(cloth => {
 
-            // add to the worn array
+            // Add to the worn array.
             this.worn.push({
 
-              // cloth name
+              // Cloth name.
               name: cloth.title,
-              // start and end properties determine date when item was worn on
+              // Start and end properties determine date when item was worn on.
               start: formatedDate,
               end: formatedDate
               
@@ -244,44 +244,44 @@ import ClothIndex from '../Cloth/ClothIndex';
 
       },
 
-      // views day
+      // Views Day.
       viewDay ({ date, day }) {
-        // sets assigned date
+        // Sets assigned date.
         this.currentDayInformation.date = date || day.date;
 
-        // itterates through all dates
+        // Itterates through all Dates.
         for(let i = 0; i < this.days.length; i++){
 
-          // looks for assigned date among existing days
-          // slice removes additional backEndDate data
+          // Looks for assigned Date among existing Days.
+          // Slice removes additional backEndDate data.
           if(this.currentDayInformation.date === this.days[i].date.slice(0, 10)){
-            // sets day id
+            // Sets Day id.
             this.currentDayInformation.id = this.days[i].id;
 
-            // itterates through all clothes worn on a date
+            // Itterates through all Clothes worn on a date.
             this.days[i].clothes.forEach(cloth => {
 
-              // adds cloth id to the worn array
+              // Adds cloth id to the worn array.
               this.currentDayInformation.worn.push(cloth.id);
 
             });
-            // stops for loop
+            // Stops for loop
             break;
           }
         }
 
-        // sets Back End date
+        // Sets Back-End date.
         this.currentDayInformation.backEndDate = this.currentDayInformation.date+' 00:00:00';
 
-        // toggles modal
+        // Toggles modal.
         this.modal = true;
       },
       
-      // closes view Day
+      // Closes view Day.
       closeViewDay(){
-        // toggles modal
+        // Toggles modal.
         this.modal = false;
-        // resets current day information
+        // Resets current Day information.
         this.currentDayInformation = {
           date: '',
           timestamp: '',
@@ -289,11 +289,11 @@ import ClothIndex from '../Cloth/ClothIndex';
         };
       },
 
-      // handle Day save
+      // Handles Day save
       handleDaySave(){
-        // reload Days
+        // Reload Days.
         this.loadDays();
-        // close view Day
+        // Close view Day.
         this.closeViewDay();
       },
 
@@ -367,12 +367,12 @@ import ClothIndex from '../Cloth/ClothIndex';
     },
 
     mounted() {
-      // load Clothes
+      // Load Clothes.
       this.loadClothes();
-      // load Days
+      // Load Days.
       this.loadDays();
 
-      // bus methods
+      // Bus methods.
       EventBus.$on("handleDaySave", this.handleDaySave);
     },
   }

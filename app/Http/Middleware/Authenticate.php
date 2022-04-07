@@ -15,9 +15,7 @@ class Authenticate extends Middleware
   protected function redirectTo($request){
     abort(
       response()->json([
-        'title' => 'Validation error.',
-        'message' => 'There was an validation error.',
-        'write' => true,
+        'scenario' => 'authentication.failed',
         'data' => new \stdClass()
       ], 403)
     );

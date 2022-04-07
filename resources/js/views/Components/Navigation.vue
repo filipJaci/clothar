@@ -90,20 +90,20 @@ export default {
         // logout
         this.axios.post('logout')
         // success
-        .then(response => {
-          // run Vuex methods
-          this.authLogout();
-          this.removeClothes();
-          this.removeDays();
-          // run handleLogout bus method on App
-          EventBus.$emit('handleLogout');
-          // push to login page
-          this.$router.push('login');
-        })
+        .then(response => {})
         // there was an error with the request
         .catch(function (error) {
           console.error(error);
         });
+        
+        // run Vuex methods
+        this.authLogout();
+        this.removeClothes();
+        this.removeDays();
+        // run handleLogout bus method on App
+        EventBus.$emit('handleLogout');
+        // push to login page
+        this.$router.push('login');
 
       });
     }

@@ -1,36 +1,36 @@
 export default {
   namespaced: true,
-  // data
+  // Data.
   state:{
-    // array of Days
+    // Array of Days.
     days: [],
   },
 
-  // getters
+  // Getters.
   getters:{
-    // gets days
+    // Gets Days.
     days(state){
-      // return days
+      // Return Days.
       return state.days;
     }
   },
 
-  // mutations
+  // Mutations.
   mutations:{
-    // sets Days
+    // Sets Days.
     SET_DAYS (state, value) {
-      // set Days to assigned value
+      // Set Days to assigned value.
       state.days = value;
     }
   },
 
-  // methods
+  // Methods.
   actions:{
-    // saves Days
+    // Saves Days.
     saveDays({commit}, data){
       commit('SET_DAYS', data);
     },
-    // removes Days
+    // Removes Days.
     removeDays({commit}){
       commit('SET_DAYS', []);
     }

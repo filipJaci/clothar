@@ -12,9 +12,7 @@ class EmailConfirmationRequest extends FormRequest{
   protected function failedValidation(Validator $validator) { 
     throw new HttpResponseException(
       response()->json([
-        'title' => 'Verification failed.',
-        'message' => 'Invalid verification token.',
-        'write' => true,
+        'scenario' => 'verification.failed.validation',
         'data' => $validator->errors()->all()
       // Response HTTP status code is 400 - Bad request.
       ], 400)

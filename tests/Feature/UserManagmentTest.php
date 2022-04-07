@@ -62,9 +62,7 @@ class UserManagmentTest extends TestCase{
 
   // checks api repsonse format, wheter or not all keys are present
   private function checkResponseFormat($response){
-    $this->assertArrayHasKey('title', $response);
-    $this->assertArrayHasKey('message', $response);
-    $this->assertArrayHasKey('write', $response);
+    $this->assertArrayHasKey('scenario', $response);
     $this->assertArrayHasKey('data', $response);
 
   }

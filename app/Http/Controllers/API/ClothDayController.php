@@ -33,6 +33,17 @@ class ClothDayController extends Controller{
     return true;
   }
 
+  // Validates that there is no Day data for the selected date.
+  private function validateUserDay($user, $date){
+    // Date does not belong to the User.
+    if(Day::where('date', new Carbon($date))->where('user_id', $user->id)->count() > 0){
+      // Check failed.
+      return false;
+    }
+    // Check passed.
+    return true;
+  }
+
   /**
    * Display a listing of the resource.
    *
@@ -43,9 +54,7 @@ class ClothDayController extends Controller{
     $user = auth()->user();
 
     return response()->json([
-      'title' => 'Index Successful',
-      'message' => 'Cloth and Day index successful',
-      'write' => false,
+      'scenario' => 'cloth-day.index.success',
       'data' => $this->getUserDays($user)
     ], 200);
   }
@@ -65,14 +74,21 @@ class ClothDayController extends Controller{
     if(! $this->validateUserCloth($user, $request['clothes'])){
       // Return the response.
       return response()->json([
-        'title' => 'Store Failed',
-        'message' => 'Submited Clothes do not belong to the User.',
-        'write' => true,
+        'scenario' => 'cloth-day.store.failed.wrong-user',
         'data' => $this->getUserDays($user)
       ], 422);
     }
 
-    // Find or create Day in the DB.
+    // User has already saved some data on the sent Day.
+    if(! $this->validateUserDay($user, $request['date'])){
+      // Return the response.
+      return response()->json([
+        'scenario' => 'cloth-day.store.failed.wrong-date',
+        'data' => $this->getUserDays($user)
+      ], 422);
+    }
+
+    // Create Day in the DB.
     $day = Day::create([
       'date' => new Carbon($request['date']),
       'user_id' => $user->id
@@ -91,9 +107,7 @@ class ClothDayController extends Controller{
 
     // Return the response.
     return response()->json([
-      'title' => 'Store Successful',
-      'message' => 'Saved worn clothes.',
-      'write' => true,
+      'scenario' => 'cloth-day.store.success',
       'data' => $this->getUserDays($user)
     ], 200);
 
@@ -102,21 +116,20 @@ class ClothDayController extends Controller{
   /**
    * Updates existing resource in storage.
    *
-   * @param  \App\Models\Day  $day
    * @param  \Illuminate\Http\DayUpdateRequest  $request
    * @return \Illuminate\Http\Response
    */
-  public function update(Day $day, DayUpdateRequest $request){
+  public function update(DayUpdateRequest $request){
     // Get User data.
     $user = auth()->user();
+    // Get Day.
+    $day = Day::find($request['id']);
 
     // Day does not belong to the User.
     if($day->user_id != $user->id){
       // Return the response.
       return response()->json([
-        'title' => 'Update Failed',
-        'message' => 'Submited Day does not belong to the User.',
-        'write' => true,
+        'scenario' => 'cloth-day.update.failed.wrong-day',
         'data' => $this->getUserDays($user)
       ], 422);
     }
@@ -125,9 +138,7 @@ class ClothDayController extends Controller{
     if(! $this->validateUserCloth($user, $request['clothes'])){
       // Return the response.
       return response()->json([
-        'title' => 'Update Failed',
-        'message' => 'Submited Clothes do not belong to the User.',
-        'write' => true,
+        'scenario' => 'cloth-day.update.failed.wrong-clothes',
         'data' => $this->getUserDays($user)
       ], 422);
     }
@@ -145,9 +156,7 @@ class ClothDayController extends Controller{
 
     // Return the response.
     return response()->json([
-      'title' => 'Store Successful',
-      'message' => 'Saved worn clothes.',
-      'write' => true,
+      'scenario' => 'cloth-day.update.success',
       'data' => $this->getUserDays($user)
     ], 200);
 
@@ -156,21 +165,17 @@ class ClothDayController extends Controller{
   /**
    * Remove the specified resource from storage.
    *
-   * @param  \App\Models\Day  $day
    * @return \Illuminate\Http\Response
    */
   public function destroy(Day $day){
-    
-    // Get the user information.
+    // Get User.
     $user = auth()->user();
 
     // Day does not belong to the User.
     if($day->user_id != $user->id){
       // Return the response.
       return response()->json([
-        'title' => 'Update Failed',
-        'message' => 'Submited Day does not belong to the User.',
-        'write' => true,
+        'scenario' => 'cloth-day.destroy.failed.wrong-user',
         'data' => $this->getUserDays($user)
       ], 422);
     }
@@ -179,9 +184,7 @@ class ClothDayController extends Controller{
     $day->delete();
 
     return response()->json([
-      'title' => 'Delete Successful',
-      'message' => 'Removed worn clothes.',
-      'write' => true,
+      'scenario' => 'cloth-day.destroy.success',
       'data' => $this->getUserDays($user)
     ], 200);
   }

@@ -37,17 +37,9 @@ class Handler extends ExceptionHandler
 
       // Failed login check.
       $this->renderable(function (\Illuminate\Auth\AuthenticationException $e, $request) {
-        dd($request);
         if ($request->is('api/*')) {
           return response()->json([
-            // title
-            'title' => 'Login check.',
-            // message
-            'message' => 'Login check failed.',
-            // message should be displayed
-            'write' => false,
-            // additional data
-            'data' => null
+            'scenario' => 'authentication.failed.log-in'
           ], 401);
         }
       });
@@ -56,10 +48,7 @@ class Handler extends ExceptionHandler
     protected function invalidJson($request, ValidationException $exception){
       
       return response()->json([
-        'title' => 'Data validation error.',
-        'message' => $exception->errors(),
-        'write' => true,
-        'data' => new \stdClass()
+        'scenario' => 'invalid-json.failed'
       ], $exception->status);
     }
 }

@@ -12,9 +12,7 @@ class UserRegistrationRequest extends FormRequest{
   protected function failedValidation(Validator $validator) { 
     throw new HttpResponseException(
       response()->json([
-        'title' => 'Registation failed.',
-        'message' => 'There were following registration errors:',
-        'write' => true,
+        'scenario' => 'registration.failed.validation',
         'data' => $validator->errors()->all()
       // Response HTTP status code is 422 - invalid data.
       ], 422)

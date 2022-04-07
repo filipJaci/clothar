@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Models\Cloth;
 
 use App\Http\Requests\ClothStoreRequest;
+use App\Http\Requests\ClothUpdateRequest;
 
 class ClothController extends Controller{
 
@@ -35,24 +36,22 @@ class ClothController extends Controller{
 
     // Return the response.
     return response()->json([
-      'title' => 'Create Successful',
-      'message' => 'Cloth has been created.',
-      'write' => true,
+      'scenario' => 'cloth.store.success',
       'data' => $this->getUserClothes($user)
     ], 200);
   }
 
-  public function update(ClothStoreRequest $request, Cloth $cloth){
-    // Get user information.
+  public function update(ClothUpdateRequest $request){
+    // Get User.
     $user = auth()->user();
+    // Get Cloth.
+    $cloth = Cloth::find($request['id']);
 
     // Cloth does not belong to the User.
     if(! $this->validateUserCloth($user, $cloth)){
       // Return the response.
       return response()->json([
-        'title' => 'Update Failed',
-        'message' => 'Cloth does not belong to the User.',
-        'write' => true,
+        'scenario' => 'cloth.update.wrong-user',
         'data' => $this->getUserClothes($user)
       ], 422);
     }
@@ -62,24 +61,20 @@ class ClothController extends Controller{
 
     // Return the response.
     return response()->json([
-      'title' => 'Update Successful',
-      'message' => 'Cloth has been updated.',
-      'write' => true,
+      'scenario' => 'cloth.update.success',
       'data' => $this->getUserClothes($user)
     ], 200);
   }
 
   public function destroy(Cloth $cloth){
-    // Get the user information.
+    // Get User.
     $user = auth()->user();
 
     // Cloth does not belong to the User.
     if(! $this->validateUserCloth($user, $cloth)){
       // Return the response.
       return response()->json([
-        'title' => 'Delete Failed',
-        'message' => 'Cloth does not belong to the User.',
-        'write' => true,
+        'scenario' => 'cloth.destroy.failed.wrong-user',
         'data' => $this->getUserClothes($user)
       ], 422);
     }
@@ -87,9 +82,7 @@ class ClothController extends Controller{
     $cloth->delete();
 
     return response()->json([
-      'title' => 'Delete Successful',
-      'message' => 'Cloth has been deleted.',
-      'write' => true,
+      'scenario' => 'cloth.destroy.success',
       'data' => $this->getUserClothes($user)
     ], 200);
   }
@@ -100,9 +93,7 @@ class ClothController extends Controller{
 
     // Return the response.
     return response()->json([
-      'title' => 'Index Successful',
-      'message' => 'Cloth index successful.',
-      'write' => false,
+      'scenario' => 'cloth.index.success',
       'data' => $this->getUserClothes($user)
     ], 200);
   }

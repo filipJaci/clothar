@@ -50,8 +50,9 @@ class ClothManagmentTest extends TestCase{
     // As a User
     return $this->actingAs($user)
     // update first Cloth.
-    ->patch('api/clothes/' . $clothId, [
+    ->patch('api/clothes', [
       // New values.
+      'id' => $clothId,
       'title' => 'Long Sleeves shirt',
       'description' => "new description",
       'category' => 1,
@@ -79,9 +80,7 @@ class ClothManagmentTest extends TestCase{
 
   // Checks api repsonse format, wheter or not all keys are present.
   private function checkResponseFormat($response){
-    $this->assertArrayHasKey('title', $response);
-    $this->assertArrayHasKey('message', $response);
-    $this->assertArrayHasKey('write', $response);
+    $this->assertArrayHasKey('scenario', $response);
     $this->assertArrayHasKey('data', $response);
   }
 

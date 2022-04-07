@@ -20,7 +20,7 @@ class MailTest extends TestCase{
       // Prevent sending an actual email.
       Mail::fake();
       // Attempt to send an email.
-      Mail::to('<email_address>')->send(new EmailConfirmation());
+      Mail::to('<email_address>')->send(new EmailConfirmation('1234abcd'));
 
       // An email can be sent.
       Mail::assertSent(EmailConfirmation::class);

@@ -2,17 +2,30 @@
 
 namespace App\Http\Requests;
 
+use Illuminate\Contracts\Validation\Validator;
+use Illuminate\Http\Exceptions\HttpResponseException;
+
 use Illuminate\Foundation\Http\FormRequest;
 
-class ClothStoreRequest extends FormRequest
-{
+class ClothStoreRequest extends FormRequest{
+
+  // In case of failed validation.
+  protected function failedValidation(Validator $validator) { 
+    throw new HttpResponseException(
+      response()->json([
+        'scenario' => 'cloth.store.failed.validation',
+        'data' => $validator->errors()->all()
+      // Response HTTP status code is 400 - Bad request.
+      ], 400)
+    );
+  }
+
   /**
    * Determine if the User is authorized to make this request.
    *
    * @return bool
    */
-  public function authorize()
-  {
+  public function authorize(){
     return true;
   }
 
@@ -21,8 +34,7 @@ class ClothStoreRequest extends FormRequest
    *
    * @return array
    */
-  public function rules()
-  {
+  public function rules(){
     return [
       'title' => 'required',
       'description' => 'nullable',

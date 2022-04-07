@@ -210,8 +210,7 @@ export default {
     },
 
     clothUpdate(){
-
-      this.axios.patch('/clothes/' + this.cloth.id , this.cloth)
+      this.axios.patch('/clothes', this.cloth)
       .then((response) => {
         // save clothes to Vuex store
         this.saveClothes(response['data']);

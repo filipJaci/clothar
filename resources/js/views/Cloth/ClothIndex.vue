@@ -4,9 +4,7 @@
     <!-- write an appropriate message -->
     <Message
       v-if="clothes.length === 0"
-      type="info"
-      title="No Clothes found"
-      body="There are no clothes found, please insert a cloth to continue."
+      scenario="cloth.no-clothes"
     ></Message>
 
     <!-- there are clothes in the DB -->
@@ -244,7 +242,8 @@
 
 <script>
 
-import ClothForm from './ClothForm.vue'
+import ClothForm from './ClothForm.vue';
+import { mapActions } from 'vuex';
 
 export default {
 
@@ -276,18 +275,29 @@ export default {
   },
 
   methods: {
-    // load Clothes
+    // Registers a Vuex method.
+    ...mapActions({
+      // saveClothes refers to saveClothes method found in days.
+      saveClothes: 'clothes/saveClothes'
+    }),
+
+    // Loads Clothes.
     loadClothes(){
-      // load Clothes
+      // Load Clothes.
       this.clothes = this.$store.state.clothes.clothes;
     },
 
-    // deletes Cloth
+    // Deletes Cloth.
     clothDelete(id){
-
+      // Delete Cloth.
       this.axios.delete('/clothes/' + id)
       .then((response) => {
+        // Dismiss Modal.
         this.deleteAlert = false;
+        // Run saveClothes Vuex method.
+        this.saveClothes(response['data']);
+        // Reload Clothes.
+        this.loadClothes();
       })
       .catch((error) => {
         console.log(error);

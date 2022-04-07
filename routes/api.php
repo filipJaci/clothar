@@ -21,7 +21,7 @@ use App\Http\Controllers\API\ClothDayController;
 // Auth routes.
 Route::post('login', [UserController::class, 'login']);
 Route::post('register', [UserController::class, 'register']);
-Route::post('logout', [UserController::class, 'logout'])->middleware('auth:sanctum');
+Route::post('logout', [UserController::class, 'logout']);
 
 Route::post('verify', [UserController::class, 'verifyEmail']);
 
@@ -29,7 +29,7 @@ Route::post('verify', [UserController::class, 'verifyEmail']);
 Route::group(['prefix' => 'clothes', 'middleware' => 'auth:sanctum'], function () {
   Route::get('/', [ClothController::class, 'index']);
   Route::post('/', [ClothController::class, 'store']);
-  Route::patch('/{cloth}', [ClothController::class, 'update']);
+  Route::patch('/', [ClothController::class, 'update']);
   Route::delete('/{cloth}', [ClothController::class, 'destroy']);
 });
 
@@ -37,7 +37,6 @@ Route::group(['prefix' => 'clothes', 'middleware' => 'auth:sanctum'], function (
 Route::group(['prefix' => 'days', 'middleware' => 'auth:sanctum'], function () {
   Route::get('/', [ClothDayController::class, 'index']);
   Route::post('/', [ClothDayController::class, 'store']);
-  Route::patch('/{day}', [ClothDayController::class, 'update']);
+  Route::patch('/', [ClothDayController::class, 'update']);
   Route::delete('/{day}', [ClothDayController::class, 'destroy']);
-  Route::get('/{day}', [ClothDayController::class, 'show']);
 });

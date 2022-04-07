@@ -10,6 +10,7 @@ import DayIndex from '../views/Day/DayIndex.vue';
 
 import Register from '../views/Authorization/Register';
 import Login from '../views/Authorization/Login';
+import Verification from '../views/Authorization/Verification';
 
 const routes = [
   {
@@ -42,6 +43,15 @@ const routes = [
     meta:{
       middleware:"guest",
       title:`Register`
+    }
+  },
+  {
+    name: 'verify',
+    path: '/verify/:token',
+    component: Verification,
+    meta:{
+      middleware:"guest",
+      title:`Email Verification`
     }
   },
   {

@@ -14,7 +14,7 @@ use App\Models\User;
 
 class ClothDayManagmentTest extends TestCase{
 
-  // On setup
+  // On setup.
   protected function setUp() :void{
     parent::setUp();
     // disable middleware which limits number number of requests.
@@ -25,6 +25,8 @@ class ClothDayManagmentTest extends TestCase{
 
   // Laravel faker.
   use WithFaker;
+  // Prevent using actual DB during testing.
+  use RefreshDatabase;
 
   // Creates a User.
   private function createUser(){
@@ -57,7 +59,7 @@ class ClothDayManagmentTest extends TestCase{
     return $this->actingAs($user)
     // create Cloth with Day worn on that day.
     ->post('api/days', [
-      'date' => $date,
+      'date' => new Carbon($date),
       'clothes' => $clothes,
       // will be used in the future
       // 'ocassion' => 1
@@ -70,7 +72,8 @@ class ClothDayManagmentTest extends TestCase{
     // As a User
     return $this->actingAs($user)
     // update Cloth with Day worn on that day.
-    ->patch('api/days/' . $dayId, [
+    ->patch('api/days', [
+      'id' => $dayId,
       'clothes' => $clothes,
       // will be used in the future
       // 'ocassion' => 1
@@ -123,17 +126,13 @@ class ClothDayManagmentTest extends TestCase{
   // Checks api repsonse format, wheter or not all keys are present.
   private function checkResponseFormat($response){
 
-    $this->assertArrayHasKey('title', $response);
-    $this->assertArrayHasKey('message', $response);
-    $this->assertArrayHasKey('write', $response);
+    $this->assertArrayHasKey('scenario', $response);
     $this->assertArrayHasKey('data', $response);
 
     if(count($response['data']) > 0){
       $this->assertArrayHasKey('clothes', $response['data'][0]);
     }
   }
-
-  use RefreshDatabase;
 
   /** @test */
   public function cloth_and_day_can_be_created(){
@@ -269,6 +268,26 @@ class ClothDayManagmentTest extends TestCase{
   }
 
   /** @test */
+  public function cloth_and_day_create_can_not_create_a_new_day_if_such_day_already_exists(){
+    $this->withoutExceptionHandling();
+    // Create User.
+    $user = $this->createUser();
+
+    // Create a Cloth and return its id.
+    $clothId = $this->createClothAndGetId($user);
+
+    // Attempt to create Cloth and Day entry on the same date.
+    $this->createClothWithDay($user, '2022-04-07', [$clothId]);
+    // Record the response.
+    $response = $this->createClothWithDay($user, '2022-04-07', [$clothId]);
+
+    // Response HTTP status code is 400 - Bad request.
+    $response->assertStatus(422);
+    // Check the response format.
+    $this->checkResponseFormat($response);
+  }
+
+  /** @test */
   public function cloth_and_day_update_returns_only_users_own_cloth_and_day(){
   
     // Display more accurate errors.
@@ -288,6 +307,34 @@ class ClothDayManagmentTest extends TestCase{
     $response = $this->updateClothWithDay($user1, $dayId, [$clothId]);
 
     // Cloth has been updated.
+    $this->assertEquals($clothId, $response['data'][0]['clothes'][0]['id']);
+  }
+
+  /** @test */
+  public function cloth_and_day_update_keeps_only_newely_added_clothes(){
+  
+    // Display more accurate errors.
+    $this->withoutExceptionHandling();
+    // Create User.
+    $user = $this->createUser();
+
+    // Store Cloth id.
+    // Create Cloth as the User.
+    $clothId = $this->createClothAndGetId($user);
+
+    // Record the response.
+    // Create two Days with Clothes as the User.
+    $response = $this->createMultipleClothWithDay($user);
+    // Get id of the first day.
+    $dayId = $response['data'][0]['id'];
+
+    // Record the response.
+    // Update Day with firstly created Cloth.
+    $response = $this->updateClothWithDay($user, $dayId, [$clothId]);
+
+    // There is 1 Cloth registered on the Day.
+    $this->assertCount(1, $response['data'][0]['clothes']);
+    // The Cloth registered is the firstly created Cloth.
     $this->assertEquals($clothId, $response['data'][0]['clothes'][0]['id']);
   }
 
@@ -349,10 +396,8 @@ class ClothDayManagmentTest extends TestCase{
     $dayId = $response['data'][0]['id'];
 
     // Record the response.
-    // As a User
-    $response = $this->actingAs($user)->
-    // delete Day entry.
-    delete('api/days/' . $dayId);
+    // As the User, using a dayId, delete Day.
+    $response = $this->deleteClothWithDay($user, $dayId);
 
     // Response HTTP status code is ok.
     $response->assertOk();
