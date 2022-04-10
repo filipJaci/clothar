@@ -89,7 +89,7 @@ class UserController extends Controller {
       // Set API response scenario.
       $this->response['scenario'] = 'registration.failed.unknown';
       // Send error information.
-      $this->response['data']['error'] = $ex;
+      // $this->response['data']['error'] = $ex;
 
     }
 
