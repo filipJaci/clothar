@@ -27,25 +27,27 @@ class UserController extends Controller {
   public $response = [
     // Scenario.
     'scenario' => '',
-    // additional data
+    // Additional data.
     'data' => [
-      // used for session
+      // Used in case of an unknown error.
+      'error' => '',
+      // Used for session.
       'token' => '',
-      // user information
+      // User information.
       'user' => [
-        // user id
+        // User id.
         'id' => '',
-        // username
+        // Username.
         'username' => '',
       ],
-      // clothes
+      // Clothes.
       'clothes' => [],
-      // days
+      // Days.
       'days' => [],
     ]
   ];
 
-  // API response code
+  // API response code.
   public $code = null;
 
   /**
@@ -86,6 +88,9 @@ class UserController extends Controller {
       $this->code = 400;
       // Set API response scenario.
       $this->response['scenario'] = 'registration.failed.unknown';
+      // Send error information.
+      $this->response['error'] = $ex;
+
     }
 
     // Return the response.
