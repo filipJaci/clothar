@@ -64,7 +64,7 @@ class User extends Authenticatable
       $token = Str::random(10);
 
       // Number of Users with the given token.
-      $numberOfUsersWithTheGivenToken = User::where(['token' => $token])->count();
+      $numberOfUsersWithTheGivenToken = User::where(['email_verification_token' => $token])->count();
       // There are Users with the given token.
       if($numberOfUsersWithTheGivenToken > 0){
         // Reset token.
