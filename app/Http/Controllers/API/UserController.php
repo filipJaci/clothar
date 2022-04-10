@@ -104,6 +104,7 @@ class UserController extends Controller {
 
     // Get User that needs to be verified.
     $user = User::where('email_verification_token', $request->token)->first();
+    dd($user);
     // User is already verified.
     if($user->email_verified){
       // Set API response code.
