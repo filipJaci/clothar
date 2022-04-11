@@ -37,8 +37,8 @@ class UserController extends Controller {
       'user' => [
         // User id.
         'id' => '',
-        // Username.
-        'username' => '',
+        // Name.
+        'name' => '',
       ],
       // Clothes.
       'clothes' => [],
@@ -129,8 +129,8 @@ class UserController extends Controller {
       else{
         // Generate new verification token.
         $user->generateVerificationToken();
-        // Send new confirmation email.
-        Mail::to($user->email)->send(new EmailConfirmation($user->email_verification_code));
+        // Send confirmation email.
+        Mail::to($user->email)->send(new EmailConfirmation($user->email_verification_token));
         // Save changes.
         $user->save();
         // Set API response code.
@@ -167,8 +167,8 @@ class UserController extends Controller {
         // Set user infomrmation.
         $this->response['data']['user']['id'] = auth()->id();
         $this->response['data']['user']['name'] = auth()->user()->name;
-        $this->response['data']['clothes'] = Cloth::all();
-        $this->response['data']['days'] = Day::with('clothes')->get();
+        $this->response['data']['clothes'] = auth()->user()->clothes;
+        $this->response['data']['days'] = Day::with('clothes')->where('user_id', auth()->user()->id)->get();
       }
       // User is not verified.
       else{

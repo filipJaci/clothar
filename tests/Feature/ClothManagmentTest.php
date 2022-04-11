@@ -30,6 +30,26 @@ class ClothManagmentTest extends TestCase{
     return User::factory()->create();
   }
 
+  // Creates a Cloth and returns its id.
+  private function createClothAndGetId($user){
+
+    // Create a new Cloth and attach it to User.
+    $cloth = $user->clothes()->create([
+      'title' => $this->faker->word(),
+      'description' => null,
+      'category' => null,
+      'buy_at' => null,
+      'buy_date' => null,
+      'status' => 1,
+    ])->save();
+
+    // Get all Clothes.
+    $allClothes = Cloth::all();
+
+    // Return id of the last item in the allClothes array.
+    return $allClothes[$allClothes->count() - 1]->id;
+  }
+
   // Creates a Cloth as the User.
   private function createCloth($user){
     // As a user
@@ -44,7 +64,7 @@ class ClothManagmentTest extends TestCase{
       'status' => 1,
     ]);
   }
-
+  
   // Updates a Cloth as the User.
   private function updateCloth($user, $clothId){
     // As a User

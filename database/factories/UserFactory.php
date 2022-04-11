@@ -24,11 +24,11 @@ class UserFactory extends Factory
     {
       return [
         // Makes sure that there is a required symbol in the name.
-        'name' => $this->faker->unique()->name().'A!',
+        'name' => $this->faker->unique()->name(),
         'email' => $this->faker->unique()->safeEmail(),
         'email_verified' => false,
         'email_verification_token' => Str::random(10),
-        'password' => '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', // password
+        'password' => '$2y$10$XTAQlp7pQ6fGtYr4j1eQv.9pTfDdB7lC4VJS3ly.4nmwjqDnA1M7O', // User1234!
         'remember_token' => Str::random(10),
       ];
     }
