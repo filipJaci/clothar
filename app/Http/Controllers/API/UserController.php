@@ -129,8 +129,8 @@ class UserController extends Controller {
       else{
         // Generate new verification token.
         $user->generateVerificationToken();
-        // Send new confirmation email.
-        Mail::to($user->email)->send(new EmailConfirmation($user->email_verification_code));
+        // Send confirmation email.
+        Mail::to($user->email)->send(new EmailConfirmation($user->email_verification_token));
         // Save changes.
         $user->save();
         // Set API response code.
