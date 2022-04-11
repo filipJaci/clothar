@@ -85,7 +85,6 @@
         </form>
 
       </validation-observer>
-      vbt
     </v-card>
   </v-container>
 </template>
