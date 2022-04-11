@@ -48,11 +48,8 @@ export default {
   },
 
   mounted(){
-    setTimeout(() => {
-        // Run verify method.
-        this.verify();
-      }, 10000
-    );
+    // Run verify method.
+    this.verify();
   }
 }
 </script>
