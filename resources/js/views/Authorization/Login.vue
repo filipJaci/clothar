@@ -85,10 +85,15 @@
         </form>
 
       </validation-observer>
-
-      <input type="text" v-model="validation">
-      <button @click="validate">Validate</button>
+      vbt
     </v-card>
+    <v-text-field
+      name="name"
+      label="label"
+      id="id"
+      v-model="validation"
+    ></v-text-field>
+    <v-btn color="success"  @click="verify">Validate</v-btn>
   </v-container>
 </template>
 
