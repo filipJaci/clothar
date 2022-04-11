@@ -44,7 +44,7 @@ class UserManagmentTest extends TestCase{
     $token = User::where('email', $email)->value('email_verification_token');
 
     // Verify email.
-    return $this->post('/api/verify/', [
+    return $this->post('/api/verify', [
       'token' => $token
     ]);
   }

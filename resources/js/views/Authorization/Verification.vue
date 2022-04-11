@@ -25,7 +25,7 @@ export default {
       let token = this.$route.params.token;
 
       // Run verification request.
-      this.axios.post('verify/',{
+      this.axios.post('verify',{
         'token': token
       })
       // Verification successful.
