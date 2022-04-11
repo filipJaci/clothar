@@ -181,7 +181,7 @@ export default {
       let token = this.validation;
 
       // Run verification request.
-      this.axios.post('verify/',{
+      this.axios.post('verify',{
         'token': token
       })
       // Verification successful.
