@@ -102,12 +102,11 @@ class UserController extends Controller {
    */
   public function verifyEmail(EmailConfirmationRequest $request){
 
+    return response()->json(['scenario' => 'debugging'], 200);
+
     // Get User that needs to be verified.
     $user = User::where('email_verification_token', $request->token)->first();
-    // return response()->json([
-    //   'scenario' => 'fail',
-    //   'username' => $user->name
-    // ], $this->code);
+    
     // User is already verified.
     if($user->email_verified){
       // Set API response code.
