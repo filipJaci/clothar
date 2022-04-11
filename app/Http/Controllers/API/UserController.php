@@ -23,7 +23,7 @@ use App\Http\Requests\EmailConfirmationRequest;
 
 class UserController extends Controller {
   
-  // API response
+  // API response.
   public $response = [
     // Scenario.
     'scenario' => '',
