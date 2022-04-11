@@ -29,6 +29,8 @@ class UserController extends Controller {
     'scenario' => '',
     // Additional data.
     'data' => [
+      // Used in case of an unknown error.
+      'error' => '',
       // Used for session.
       'token' => '',
       // User information.
@@ -86,6 +88,9 @@ class UserController extends Controller {
       $this->code = 400;
       // Set API response scenario.
       $this->response['scenario'] = 'registration.failed.unknown';
+      // Send error information.
+      // $this->response['data']['error'] = $ex;
+
     }
 
     // Return the response.
@@ -99,6 +104,7 @@ class UserController extends Controller {
 
     // Get User that needs to be verified.
     $user = User::where('email_verification_token', $request->token)->first();
+    
     // User is already verified.
     if($user->email_verified){
       // Set API response code.
