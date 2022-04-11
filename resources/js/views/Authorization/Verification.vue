@@ -51,7 +51,7 @@ export default {
     setTimeout(() => {
         // Run verify method.
         this.verify();
-      }, 5000
+      }, 10000
     );
   }
 }
