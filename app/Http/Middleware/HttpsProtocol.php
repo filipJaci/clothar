@@ -16,4 +16,3 @@ class HttpsProtocol {
         return $next($request); 
     }
 }
-?>
