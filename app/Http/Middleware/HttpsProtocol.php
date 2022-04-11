@@ -25,7 +25,7 @@ class HttpsProtocol
                 return redirect()->secure($request->getRequestUri());
             }
         }
-
+        dd(app()->environment('local'));
         return $next($request);
     }
 }
