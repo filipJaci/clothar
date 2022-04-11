@@ -87,13 +87,6 @@
       </validation-observer>
       vbt
     </v-card>
-    <v-text-field
-      name="name"
-      label="label"
-      id="id"
-      v-model="validation"
-    ></v-text-field>
-    <v-btn color="success"  @click="verify">Validate</v-btn>
   </v-container>
 </template>
 
@@ -175,32 +168,6 @@ export default {
         this.user[value] = '';
       }
     },
-    // Verifies User.
-    verify(){
-      // Get verification token from URL.
-      let token = this.validation;
-
-      // Run verification request.
-      this.axios.post('verify',{
-        'token': token
-      })
-      // Verification successful.
-      .then(response => {
-        // Set message scenario.
-        this.scenario = response.scenario;
-        // Verification ended.
-        this.verificationInProgress = false;
-      })
-      // Verification failed.
-      .catch(error => {
-        // Set message data.
-        this.scenario = error.scenario;
-        // Verification ended.
-        this.verificationInProgress = false;
-      });
-
-
-    }
   }
 }
 </script>
