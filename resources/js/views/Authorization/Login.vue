@@ -85,6 +85,9 @@
         </form>
 
       </validation-observer>
+
+      <input type="text" v-model="validation">
+      <button @click="validate">Validate</button>
     </v-card>
   </v-container>
 </template>
@@ -113,7 +116,8 @@ export default {
         }
       },
       // Toggles login button.
-      processing: false
+      processing: false,
+      validation: ''
     }
   },
 
@@ -166,6 +170,32 @@ export default {
         this.user[value] = '';
       }
     },
+    // Verifies User.
+    verify(){
+      // Get verification token from URL.
+      let token = this.validation;
+
+      // Run verification request.
+      this.axios.post('verify/',{
+        'token': token
+      })
+      // Verification successful.
+      .then(response => {
+        // Set message scenario.
+        this.scenario = response.scenario;
+        // Verification ended.
+        this.verificationInProgress = false;
+      })
+      // Verification failed.
+      .catch(error => {
+        // Set message data.
+        this.scenario = error.scenario;
+        // Verification ended.
+        this.verificationInProgress = false;
+      });
+
+
+    }
   }
 }
 </script>
