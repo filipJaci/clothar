@@ -51,6 +51,12 @@ class User extends Authenticatable
     return $this->hasMany(Day::class);
   }
 
+  // Used for case insensitive validation.
+  public function setEmailAttribute($value)
+  {
+    $this->attributes['email'] = strtolower($value);
+  }
+
   /**
    * Generate verification token.
    */

@@ -21,6 +21,8 @@ class UserManagmentTest extends TestCase{
   // Laravel faker.
   use WithFaker;
 
+  use RefreshDatabase;
+
   // On setup
   protected function setUp() :void{
     parent::setUp();
@@ -30,7 +32,6 @@ class UserManagmentTest extends TestCase{
     );
   }
 
-  use RefreshDatabase;
 
   // Registers a User.
   private function registerUser($name, $email, $password){
@@ -174,6 +175,26 @@ class UserManagmentTest extends TestCase{
     $this->assertCount(1, $response['data']);
     // The error is the correct one.
     $this->assertEquals('The email has already been taken.', $response['data'][0]);
+  }
+
+  /** @test */
+  public function registration_email_validation_is_not_case_sensitive(){
+    // Register User.
+    $this->registerUser('user1234', 'user@mail.com', 'Pswd@123');
+    
+    // Record the response.
+    // Attempt to re-register using the same email but in all capital letters.
+    $response = $this->registerUser('user12345', 'USER@mail.com', 'Pswd@123');
+
+    // Response HTTP status code is 422 - invalid data.
+    $response->assertStatus(422);
+    // Check the response format.
+    $this->checkResponseFormat($response);
+
+    // There is 1 error.
+    $this->assertCount(1, $response['data']);
+    // The error is the correct one.
+    $this->assertEquals('The email must be lowercase.', $response['data'][0]);
   }
 
   /** @test */
@@ -542,6 +563,23 @@ class UserManagmentTest extends TestCase{
     $this->assertCount(1, $response['data']);
     // The error is the correct one.
     $this->assertEquals('The password format is invalid.', $response['data'][0]);
+  }
+
+  /** @test */
+  public function login_email_validation_is_not_case_sensitive(){
+    // Register User.
+    $this->registerUser('user1234', 'user@mail.com', 'Pswd@123');
+    // Verify User.
+    $this->verifyEmail('user@mail.com');
+    
+    // Record the response.
+    // Login using the same email but in all capital letters.
+    $response = $this->loginUser('USER@mail.com', 'Pswd@123');
+
+    // Response HTTP status code is ok.
+    $response->assertOk();
+    // Check the response format.
+    $this->checkResponseFormat($response);
   }
 
   /** @test */

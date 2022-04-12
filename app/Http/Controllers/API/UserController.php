@@ -150,7 +150,8 @@ class UserController extends Controller {
   public function login(UserLoginRequest $request){
     // Login credentials.
     $credentials = [
-      'email' => $request->email,
+      // Used for case insensitive validation.
+      'email' => strtolower($request->email),
       'password' => $request->password,
     ];
 

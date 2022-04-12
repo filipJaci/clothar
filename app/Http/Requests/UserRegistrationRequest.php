@@ -5,6 +5,7 @@ namespace App\Http\Requests;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Http\Exceptions\HttpResponseException;
+use App\Rules\Lowercase;
 
 class UserRegistrationRequest extends FormRequest{
   
@@ -36,7 +37,7 @@ class UserRegistrationRequest extends FormRequest{
   public function rules(){
     return [
       'name' => 'string|required|unique:users,name|alpha_dash|min:8|max:40',
-      'email' => 'string|required|email|unique:users,email',
+      'email' => ['string','required', 'email', 'unique:users,email', new Lowercase],
       'password' => [
         'string',
         'required',
