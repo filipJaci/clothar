@@ -175,6 +175,8 @@ export default {
     submit(){
       // Disable register button.
       this.processing = true;
+      // Convert email to lowerstring.
+      this.user.email.value = this.user.email.value.toLowerCase();
       // Register a User.
       axios.post('/register', {
         'name': this.user.name.value,
