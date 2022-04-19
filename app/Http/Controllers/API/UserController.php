@@ -10,16 +10,21 @@ use App\Http\Controllers\Controller;
 use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 use App\Models\User;
 use App\Models\Cloth;
 use App\Models\Day;
 
 use App\Mail\EmailConfirmation;
+use App\Mail\ForgottenPasswordEmail;
 
 use App\Http\Requests\UserRegistrationRequest;
 use App\Http\Requests\UserLoginRequest;
 use App\Http\Requests\EmailConfirmationRequest;
+use App\Http\Requests\SendForgottenPasswordRequest;
+use App\Http\Requests\VerifyForgottenPasswordRequest;
 
 class UserController extends Controller {
   
@@ -49,6 +54,37 @@ class UserController extends Controller {
 
   // API response code.
   public $code = null;
+
+  // Set forgotten password token.
+  public function setAndSendForgottenPasswordToken($email){
+    // Forgotten password token.
+    $token = null;
+    // While token is null.
+    while($token === null){
+      // Set new token.
+      $newToken = Str::random(10);
+      // New token doesn't already exist.
+      if(DB::table('password_resets')->where(['token' => $newToken])->count() === 0){
+        // Set token to new token.
+        $token = $newToken;
+      }
+    }
+
+    // Create or update a password_resets entry for the User.
+    DB::table('password_resets')->updateOrInsert(
+      // Criteria on wheter an entry should be created or updated.
+      ['email' => $email],
+      // New values for the DB.
+      [
+        'token' => $token,
+        'created_at' => Carbon::now()
+      ]
+    );
+
+    
+    // Send confirmation email.
+    Mail::to($email)->send(new ForgottenPasswordEmail($token));
+  }
 
   /**
    * Register
@@ -216,6 +252,75 @@ class UserController extends Controller {
       // Set API response scenario.
       $this->response['scenario'] = 'logout.failed';
     }
+
+    // Send API response.
+    return response()->json($this->response, $this->code);
+  }
+
+  /**
+   * Send forgotten password.
+   */
+  public function sendForgottenPassword(SendForgottenPasswordRequest $request){
+    
+    // Get wether or not User is verified.
+    $verified = User::where(['email' => $request->email])->first()->email_verified;
+    // User is unverified.
+    if($verified === '0'){
+      // Set API response code 409 - Conflict.
+      $this->code = 409;
+      // Set API response scenario.
+      $this->response['scenario'] = 'forgotten.failed.unverified';
+      // Send API response.
+      return response()->json($this->response, $this->code);
+    }
+    
+    // Set and send forgotten password token.
+    $this->setAndSendForgottenPasswordToken($request->email);
+
+    // Set API response code.
+    $this->code = 200;
+    // Set API response scenario.
+    $this->response['scenario'] = 'forgotten.success.sent';
+    
+
+    // Send API response.
+    return response()->json($this->response, $this->code);
+  }
+
+  /**
+   * Verify forgotten password.
+   */
+  public function verifyForgottenPassword(VerifyForgottenPasswordRequest $request){
+    // Get row from password_reset table.
+    $row = DB::table('password_resets')->where('token', $request->token)->first();
+
+    // Forgotten password request was made less than 8 hours ago.
+    if(Carbon::create($row->created_at)->diffInHours() < 8){
+      // Get User id using the token.
+      $email = $row->email;
+      // Get User data.
+      $user = User::where('email', $email)->first();
+      // Change password.
+      $user->password = Hash::make($request->password);
+      // Save changes.
+      $user->save();
+      // Delete token DB entry.
+      DB::table('password_resets')->where('token', $request->token)->delete();
+      // Set API response code.
+      $this->code = 200;
+      // Set API response scenario.
+      $this->response['scenario'] = 'forgotten.success.changed';
+    }
+    // Forgotten password request was made 8 or more hours ago.
+    else{
+      // Set and send forgotten password token.
+      $this->setAndSendForgottenPasswordToken($row->email);
+      // Set API response code.
+      $this->code = 410;
+      // Set API response scenario.
+      $this->response['scenario'] = 'forgotten.failed.expired';
+    }
+    
 
     // Send API response.
     return response()->json($this->response, $this->code);
