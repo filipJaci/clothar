@@ -198,6 +198,27 @@ class UserManagmentTest extends TestCase{
   }
 
   /** @test */
+  public function registration_validation_removes_whitespaces_from_request(){
+    // Register User.
+    $this->registerUser('user1234', 'user@mail.com', 'Pswd@123');
+    
+    // Record the response.
+    // Attempt to re-register using the same email but with a whitespace character.
+    $response = $this->registerUser('user12345', 'user@mail.com ', 'Pswd@123');
+
+    // Response HTTP status code is 422 - invalid data.
+    $response->assertStatus(422);
+    // Check the response format.
+    $this->checkResponseFormat($response);
+
+    // There is 1 error.
+    $this->assertCount(1, $response['data']);
+    // The error is the correct one.
+    $this->assertEquals('The email has already been taken.', $response['data'][0]);
+  }
+
+
+  /** @test */
   public function registration_requries_a_unique_name(){
 
     // Register User.
@@ -575,6 +596,23 @@ class UserManagmentTest extends TestCase{
     // Record the response.
     // Login using the same email but in all capital letters.
     $response = $this->loginUser('USER@mail.com', 'Pswd@123');
+
+    // Response HTTP status code is ok.
+    $response->assertOk();
+    // Check the response format.
+    $this->checkResponseFormat($response);
+  }
+
+  /** @test */
+  public function login_email_validation_removes_whitespaces(){
+    // Register User.
+    $this->registerUser('user1234', 'user@mail.com', 'Pswd@123');
+    // Verify User.
+    $this->verifyEmail('user@mail.com');
+    
+    // Record the response.
+    // Login using the same email but in all capital letters.
+    $response = $this->loginUser('user@mail.com ', 'Pswd@123');
 
     // Response HTTP status code is ok.
     $response->assertOk();
