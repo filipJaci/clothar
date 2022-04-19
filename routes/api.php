@@ -24,6 +24,8 @@ Route::post('register', [UserController::class, 'register']);
 Route::post('logout', [UserController::class, 'logout']);
 
 Route::post('verify', [UserController::class, 'verifyEmail']);
+Route::post('forgot-password', [UserController::class, 'sendForgottenPassword']);
+Route::patch('forgot-password', [UserController::class, 'verifyForgottenPassword']);
 
 // Clothes.
 Route::group(['prefix' => 'clothes', 'middleware' => 'auth:sanctum'], function () {

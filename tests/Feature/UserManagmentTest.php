@@ -9,12 +9,16 @@ use Tests\TestCase;
 use Illuminate\Routing\Middleware\ThrottleRequests;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\DB;
 
 use App\Mail\EmailConfirmation;
+use App\Mail\ForgottenPasswordEmail;
 
 use App\Models\User;
 use App\Models\Cloth;
 use App\Models\Day;
+
+use function PHPUnit\Framework\assertEquals;
 
 class UserManagmentTest extends TestCase{
 
@@ -72,6 +76,32 @@ class UserManagmentTest extends TestCase{
     return User::factory()->create();
   }
 
+  // Sends a forgotten password request.
+  private function sendAForgottenPasswordRequest($name, $email, $password, $register, $verify){
+    // User should be registered.
+    if($register){
+      // Register User.
+      $this->registerUser('User1234', 'user@mail.com', 'Pswd@123');
+    }
+    // User should be verified.
+    if($verify){
+      // Verify email.
+      $this->verifyEmail('user@mail.com');
+    }
+    // Send a forgotten password request.
+    return $this->post('api/forgot-password', [
+      'email' => $email
+    ]);
+  }
+
+  // Verify forgotten password request.
+  private function verifyForgottenPasswordRequest($token, $password, $password_confirmation){
+    return $this->patch('api/forgot-password', [
+      'token' => $token,
+      'password' => $password,
+      'password_confirmation' => $password_confirmation
+    ]);
+  }
 
   // Creates a Cloth and returns its id.
   private function createClothAndGetId($user){
@@ -109,7 +139,7 @@ class UserManagmentTest extends TestCase{
     return $day->id;
   }
 
-  // checks api repsonse format, wheter or not all keys are present
+  // Checks API repsonse format, wheter or not all keys are present
   private function checkResponseFormat($response){
     $this->assertArrayHasKey('scenario', $response);
     $this->assertArrayHasKey('data', $response);
@@ -415,8 +445,8 @@ class UserManagmentTest extends TestCase{
     $response->assertStatus(410);
     // Check the response format.
     $this->checkResponseFormat($response);
-    // New verification email was sent.
-    Mail::assertSent(EmailConfirmation::class);
+    // New verification email was sent twice.
+    Mail::assertSent(EmailConfirmation::class, 2);
   }
 
   /** @test */
@@ -646,4 +676,95 @@ class UserManagmentTest extends TestCase{
     
   }
 
+  /** @test */
+  public function forgotten_password_fails_if_email_is_invalid_or_doesnt_exist(){
+    // Send a forgotten password request.
+    // User should not be registered or verified.
+    $response = $this->sendAForgottenPasswordRequest('User1234', 'user@mail.com', 'Pswd@123', false, false);
+    // Response HTTP status code is 400 - Bad request.
+    $response->assertStatus(400);
+    // API returned the correct scenario.
+    $this->assertEquals($response['scenario'], 'forgotten.failed.email');
+    // Check the response format.
+    $this->checkResponseFormat($response);
+  }
+
+  /** @test */
+  public function an_unverified_user_cannot_send_a_forgotten_email_request(){
+    // Record the response.
+    // Send a forgotten password request.
+    // User should be registered, but not verified.
+    $response = $this->sendAForgottenPasswordRequest('User1234', 'user@mail.com', 'Pswd@123', true, false);
+
+    // Response HTTP status code is 409 - Conflict.
+    $response->assertStatus(409);
+    // Check the response format.
+    $this->checkResponseFormat($response);
+    // API returned the correct scenario.
+    $this->assertEquals($response['scenario'], 'forgotten.failed.unverified');
+  }
+
+  /** @test */
+  public function forgotten_password_link_expires_after_8_hours_after_its_sent(){
+    // Send a forgotten password request.
+    // User should be registered and verified.
+    $this->sendAForgottenPasswordRequest('User1234', 'user@mail.com', 'Pswd@123', true, true);
+
+    // Mock that more than 8 hours have passed since the entry was created in the DB.
+    DB::table('password_resets')->where('email', 'user@mail.com')->update([
+      'created_at' => Carbon::now()->subHours(8)
+    ]);
+
+    // Get forgotten password token.
+    $token = DB::table('password_resets')->where('email', 'user@mail.com')->select('token')->first()->token;
+    // Set new password.
+    $newPassword = 'NewPswd@123';
+
+    // Record the response.
+    // Attempt to change password through forgotten password.
+    $response = $this->verifyForgottenPasswordRequest($token, $newPassword, $newPassword);
+    // Response HTTP status code is 410 - Gone (expired).
+    $response->assertStatus(410);
+    // Check the response format.
+    $this->checkResponseFormat($response);
+    // API returned the correct scenario.
+    $this->assertEquals($response['scenario'], 'forgotten.failed.expired');
+    // New verification email was sent twice.
+    Mail::assertSent(ForgottenPasswordEmail::class, 2);
+  }
+
+  // Forgotten password entry is deleted after change compeltion.
+
+  /** @test */
+  public function a_user_can_change_their_password_through_forgotten_password(){
+    // Send a forgotten password request.
+    // User should be registered and verified.
+    $response = $this->sendAForgottenPasswordRequest('User1234', 'user@mail.com', 'Pswd@123', true, true);
+
+    // Response HTTP status code is ok.
+    $response->assertOk();
+    // Check the response format.
+    $this->checkResponseFormat($response);
+    // Forgotten password email was sent.
+    Mail::assertSent(ForgottenPasswordEmail::class);
+
+    // Get forgotten password token.
+    $token = DB::table('password_resets')->where('email', 'user@mail.com')->first()->token;
+    // Set new password.
+    $newPassword = 'NewPswd@123';
+
+    // Record the response.
+    // Change password through forgotten password.
+    $response = $this->verifyForgottenPasswordRequest($token, $newPassword, $newPassword);
+    // Response HTTP status code is ok.
+    $response->assertOk();
+    // Check the response format.
+    $this->checkResponseFormat($response);
+
+    // Record the response.
+    // Attempt to login with a new password.
+    $response = $this->loginUser('user@mail.com', 'NewPswd@123');
+    // Response HTTP status code is ok.
+    $response->assertOk();    
+  }
 }
