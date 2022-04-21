@@ -42,7 +42,7 @@
               <v-btn
                 color="success"
                 type="submit"
-                :disabled="emailValueIsEmpty || submitButton"
+                :disabled="submitButton || invalid"
                 x-large
               >
                 Submit
@@ -85,13 +85,6 @@ export default {
             },
             // Toggles wether or not submit button should be disabled.
             submitButton: false
-        }
-    },
-    computed: {
-        // Evaluates wether or not Email value is empty.
-        emailValueIsEmpty: function() {
-            // Email value is not empty.
-            return this.email.value === '';
         }
     },
     methods: {

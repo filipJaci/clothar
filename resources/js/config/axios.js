@@ -191,11 +191,21 @@ let sweetAlertScenarios = {
     message: 'Please verify your email first.',
     type: 'error'
   },
+  'forgotten-password.failed.token': {
+    title: 'Forgotten Password Failed',
+    message: 'Invalid validation token, please make a new forgotten password email.',
+    type: 'error'
+  },
+  'forgotten.failed.expired': {
+    title: 'Forgotten Password Failed',
+    message: 'It\'s been more than 8 hours and token has expired. We\'ve sent you a new one via email.',
+    type: 'error'
+  },
   'forgotten.success.sent': {
     title: 'Forgotten Password Success',
     message: 'Please check your email for further details.',
     type: 'success'
-  }
+  },
 };
 
 

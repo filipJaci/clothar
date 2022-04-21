@@ -791,34 +791,6 @@ class UserManagmentTest extends TestCase{
     // Response HTTP status code is ok.
     $response->assertOk();    
   }
-
-  /** @test */
-  public function forgotten_password_new_password_should_be_at_least_8_characters(){
-    // Send a forgotten password request.
-    // User should be registered and verified.
-    $this->sendAForgottenPasswordRequest('User1234', 'user@mail.com', 'Pswd@123', true, true);
-
-    // Get forgotten password token.
-    $token = DB::table('password_resets')->where('email', 'user@mail.com')->first()->token;
-    // Set a new 7 character password.
-    $newPassword = 'NewPw@1';
-
-    // Record the response.
-    // Attempt to change password through forgotten password.
-    $response = $this->verifyForgottenPasswordRequest($token, $newPassword, $newPassword);
-
-    // Response HTTP status code is 422 - invalid data.
-    $response->assertStatus(422);
-    // Check the response format.
-    $this->checkResponseFormat($response);
-  
-    // API returned the correct scenario.
-    $this->assertEquals($response['scenario'], 'forgotten-password.failed.password');
-    // There is 1 error.
-    $this->assertCount(1, $response['data']);
-    // The error is the correct one.
-    $this->assertEquals('The password must be at least 8 characters.', $response['data'][0]);
-  }
   
   /** @test */
   public function forgotten_password_new_password_should_be_at_most_40_characters(){
@@ -933,5 +905,33 @@ class UserManagmentTest extends TestCase{
     $this->assertCount(1, $response['data']);
     // The error is the correct one.
     $this->assertEquals('The password format is invalid.', $response['data'][0]);
+  }
+
+  /** @test */
+  public function forgotten_password_new_password_should_be_at_least_8_characters(){
+    // Send a forgotten password request.
+    // User should be registered and verified.
+    $this->sendAForgottenPasswordRequest('User1234', 'user@mail.com', 'Pswd@123', true, true);
+
+    // Get forgotten password token.
+    $token = DB::table('password_resets')->where('email', 'user@mail.com')->first()->token;
+    // Set a new 7 character password.
+    $newPassword = 'NewPw@1';
+
+    // Record the response.
+    // Attempt to change password through forgotten password.
+    $response = $this->verifyForgottenPasswordRequest($token, $newPassword, $newPassword);
+
+    // Response HTTP status code is 422 - invalid data.
+    $response->assertStatus(422);
+    // Check the response format.
+    $this->checkResponseFormat($response);
+  
+    // API returned the correct scenario.
+    $this->assertEquals($response['scenario'], 'forgotten-password.failed.password');
+    // There is 1 error.
+    $this->assertCount(1, $response['data']);
+    // The error is the correct one.
+    $this->assertEquals('The password must be at least 8 characters.', $response['data'][0]);
   }
 }
