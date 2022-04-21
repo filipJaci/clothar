@@ -166,55 +166,56 @@ export default {
   },
 
   methods: {
-    // registers a Vuex method
+    // Registers a Vuex method.
     ...mapActions({
-      // saveClothes refers to saveClothes method found in clothes
+      // saveClothes refers to saveClothes method found in clothes.
       saveClothes: 'clothes/saveClothes'
     }),
 
+    // Handles click on the Submit button.
     submit(){
-
+      // There is Cloth id.
       if (this.cloth.id !== null){
-      
+        // Update Cloth.
         this.clothUpdate();
-
       }
-
+      // There is no Cloth id.
       else{
-        
+        // Create a new Cloth.
         this.clothCreate();
-
       }
-
     },
-
+    // Handles click on the Clear button.
     clear(){
-
+      // Resets all values on Cloth object.
       for(let value in this.cloth){
         this.cloth[value] = '';
       }
       
     },
-
+    // Creates a new Cloth.
     clothCreate(){
-
+      // Send a create Cloth request.
+      // With Cloth object.
       this.axios.post('/clothes', this.cloth)
       .then((response) => {
-        // save clothes to Vuex store
+        // Run Vuex saveClothes method.
         this.saveClothes(response['data']);
-        // run handleClothSave Bus method on ClothIndex
+        // Run handleClothSave Bus method on ClothIndex.
         EventBus.$emit('handleClothSave');
       })
       .catch((error) => {});
 
     },
-
+    // Updates an exsisting Cloth.
     clothUpdate(){
+      // Send a update Cloth request.
+      // With Cloth object.
       this.axios.patch('/clothes', this.cloth)
       .then((response) => {
-        // save clothes to Vuex store
+        // Run Vuex saveClothes method.
         this.saveClothes(response['data']);
-        // run handleClothSave Bus method on ClothIndex
+        // Run handleClothSave Bus method on ClothIndex.
         EventBus.$emit('handleClothSave');
       })
       .catch((error) => {});

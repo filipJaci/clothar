@@ -11,6 +11,9 @@ class ForgottenPasswordEmail extends Mailable
 {
     use Queueable, SerializesModels;
 
+    // Verification token.
+    public $token;
+    
     /**
      * Create a new message instance.
      *

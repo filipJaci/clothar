@@ -54,6 +54,10 @@
               <div class="col-12 text-center">
                 <label>Don't have an account? <router-link :to="{name:'register'}">Register Now!</router-link></label>
               </div>
+
+              <div class="col-12 text-center">
+                <label>Forgotten password? <router-link :to="{name:'forgotten-request'}">Request a link to change it.</router-link></label>
+              </div>
               
             </v-card-text>
 

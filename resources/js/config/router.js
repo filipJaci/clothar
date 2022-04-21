@@ -11,6 +11,7 @@ import DayIndex from '../views/Day/DayIndex.vue';
 import Register from '../views/Authorization/Register';
 import Login from '../views/Authorization/Login';
 import Verification from '../views/Authorization/Verification';
+import ForgottenPasswordRequest from '../views/Authorization/ForgottenPasswordRequest';
 
 const routes = [
   {
@@ -63,6 +64,15 @@ const routes = [
       title:`Login`
     }
   },
+  {
+    name: 'forgotten-request',
+    path: '/forgotten',
+    component: ForgottenPasswordRequest,
+    meta:{
+      middleware:"guest",
+      title:`Forgotten password request`
+    }
+  }
 ];
 
 
