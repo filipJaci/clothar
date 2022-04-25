@@ -22,10 +22,12 @@ use App\Http\Controllers\API\ClothDayController;
 Route::post('login', [UserController::class, 'login']);
 Route::post('register', [UserController::class, 'register']);
 Route::post('logout', [UserController::class, 'logout']);
-
 Route::post('verify', [UserController::class, 'verifyEmail']);
+
 Route::post('forgot-password', [UserController::class, 'sendForgottenPassword']);
-Route::patch('forgot-password', [UserController::class, 'verifyForgottenPassword']);
+Route::get('forgot-password/{token}', [UserController::class, 'verifyForgottenPasswordToken']);
+Route::patch('forgot-password', [UserController::class, 'changePasswordThroughForgottenPassword']);
+
 
 // Clothes.
 Route::group(['prefix' => 'clothes', 'middleware' => 'auth:sanctum'], function () {

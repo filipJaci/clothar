@@ -206,6 +206,11 @@ let sweetAlertScenarios = {
     message: 'Please check your email for further details.',
     type: 'success'
   },
+  'forgotten.success.changed': {
+    title: 'Forgotten Password Success',
+    message: 'You have successfully changed your password and may login now.',
+    type: 'success'
+  }
 };
 
 

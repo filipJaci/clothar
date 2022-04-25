@@ -4,7 +4,9 @@
       max-width="600"
       class="mx-auto"
     >
+      <!-- Validation token is valid. -->
       <validation-observer
+        v-if="tokenIsValid"
         ref="observer"
         v-slot="{ invalid }"
       >
@@ -93,6 +95,18 @@
         </form>
 
       </validation-observer>
+
+      <!-- Validation token is invalid. -->
+      <v-alert
+        v-else
+        type="error"
+        :value="true"
+      >
+        There was an error wtih token validation. It is possbile that you've requested a new link since we've sent you this one. Please try to find a newer email or request a new link through forgotten password.
+        <div class="col-12 text-center">
+          <label>Go to <router-link :to="{name:'forgotten-request'}">forgotten password.</router-link></label>
+        </div>
+      </v-alert>
     </v-card>
   </v-container>
 </template>
@@ -105,8 +119,10 @@ export default {
             password: '',
             // New password confirmation.
             password_confirmation: '',
-            // Request ioentifier found in the URL.
+            // Request identifier found in the URL.
             token: '',
+            // Used for token validation.
+            tokenIsValid: false,
             // Toggles wether or not submit button should be disabled.
             submitButton: false
         }
@@ -116,6 +132,19 @@ export default {
         setToken(){
             this.token = this.$route.params.token;
         },
+        // Validates token.
+        validateToken(){
+          axios.get('forgot-password/' + this.token)
+          // Validation passed.
+          .then(response => {
+            // Token is valid.
+            this.tokenIsValid = true;
+          })
+          .catch(error => {
+            // Token is invalid.
+            this.tokenIsValid = false;
+          });
+        },
         // Toggles wether or not submit button is disabled.
         toggleSubmiButton(disabled){
             // Toggle submit button.
@@ -123,14 +152,17 @@ export default {
         },
         // Handles click on the Submit button.
         submit(){
-            // Set token.
-            this.setToken();
             // Disable submit button.
             this.toggleSubmiButton(true);
             // Sends a Forgotten Password change request.
             axios.patch('forgot-password', {
                 token: this.token,
                 password: this.password,
+            })
+            // Request succeed.
+            .then(response => {
+              // Push to login.
+              this.$router.push('/login');
             });
             // Enable submit button.
             this.toggleSubmiButton(false);
@@ -142,6 +174,13 @@ export default {
             this.password_confirmation = '';
         }
     },
+
+    created(){
+      // Set token.
+      this.setToken();
+      // Validate token.
+      this.validateToken();
+    }
 }
 </script>
 

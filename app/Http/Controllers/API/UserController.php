@@ -24,7 +24,8 @@ use App\Http\Requests\UserRegistrationRequest;
 use App\Http\Requests\UserLoginRequest;
 use App\Http\Requests\EmailConfirmationRequest;
 use App\Http\Requests\SendForgottenPasswordRequest;
-use App\Http\Requests\VerifyForgottenPasswordRequest;
+use App\Http\Requests\ChangePasswordThroughForgottenPasswordRequest;
+use App\Http\Requests\VerifyForgottenPasswordTokenRequest;
 
 class UserController extends Controller {
   
@@ -288,9 +289,22 @@ class UserController extends Controller {
   }
 
   /**
-   * Verify forgotten password.
+   * Verify forgotten password token.
    */
-  public function verifyForgottenPassword(VerifyForgottenPasswordRequest $request){
+  public function verifyForgottenPasswordToken(VerifyForgottenPasswordTokenRequest $request){
+    // If validitation under VerifyForgottenPasswordTokenRequest passed, this method also passes.
+    // Set API response scenario.
+    $this->response['scenario'] = 'forgotten.success.token';
+    // Set API response code.
+    $this->code = 200;
+    // Send API response.
+    return response()->json($this->response, $this->code);
+  }
+
+  /**
+   * Change password through forgotten password.
+   */
+  public function changePasswordThroughForgottenPassword(ChangePasswordThroughForgottenPasswordRequest $request){
     // Get row from password_reset table.
     $row = DB::table('password_resets')->where('token', $request->token)->first();
 
