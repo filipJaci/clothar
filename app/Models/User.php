@@ -58,10 +58,10 @@ class User extends Authenticatable
   }
 
   /**
-   * Generate verification token.
+   * Generate confirmation token.
    */
-  public function generateVerificationToken(){
-    // Verification token.
+  public function generateConfirmationToken(){
+    // Confirmation token.
     $token = null;
 
     // While token is null:
@@ -70,7 +70,7 @@ class User extends Authenticatable
       $token = Str::random(10);
 
       // Number of Users with the given token.
-      $numberOfUsersWithTheGivenToken = User::where(['email_verification_token' => $token])->count();
+      $numberOfUsersWithTheGivenToken = User::where(['email_confirmation_token' => $token])->count();
       // There are Users with the given token.
       if($numberOfUsersWithTheGivenToken > 0){
         // Reset token.
@@ -78,7 +78,7 @@ class User extends Authenticatable
       }
     }
     
-    // Set verification token.
-    $this->email_verification_token = $token;
+    // Set confirmation token.
+    $this->email_confirmation_token = $token;
   }
 }

@@ -31,8 +31,8 @@ class UserTest extends TestCase
     // Edit the user.
     $user->name = 'John Doe';
     $user->email = 'john.doe@mail.com';
-    $user->email_verified = true;
-    $user->email_verification_token = null;
+    $user->email_confirmed = true;
+    $user->email_confirmation_token = null;
     $user->password = 'password';
     $user->created_at = $newDate;
     $user->updated_at = $newDate;
@@ -46,8 +46,8 @@ class UserTest extends TestCase
     // Validate changes.
     $this->assertEquals('John Doe', $user->name);
     $this->assertEquals('john.doe@mail.com', $user->email);
-    $this->assertEquals(true, $user->email_verified);
-    $this->assertEquals(null, $user->email_verification_token);
+    $this->assertEquals(true, $user->email_confirmed);
+    $this->assertEquals(null, $user->email_confirmation_token);
     $this->assertEquals('password', $user->password);
     $this->assertEquals(new DateTime($newDate), $user->created_at);
     $this->assertEquals(new DateTime($newDate), $user->updated_at);

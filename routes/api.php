@@ -22,7 +22,7 @@ use App\Http\Controllers\API\ClothDayController;
 Route::post('login', [UserController::class, 'login']);
 Route::post('register', [UserController::class, 'register']);
 Route::post('logout', [UserController::class, 'logout']);
-Route::post('verify', [UserController::class, 'verifyEmail']);
+Route::post('confirm', [UserController::class, 'confirmEmail']);
 
 Route::post('forgot-password', [UserController::class, 'sendForgottenPassword']);
 Route::get('forgot-password/{token}', [UserController::class, 'verifyForgottenPasswordToken']);

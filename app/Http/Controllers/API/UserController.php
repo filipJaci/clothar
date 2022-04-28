@@ -88,7 +88,7 @@ class UserController extends Controller {
   }
 
   /**
-   * Register
+   * Register.
    */
   public function register(UserRegistrationRequest $request){
 
@@ -97,20 +97,20 @@ class UserController extends Controller {
       // Make a new User instance.
       $user = new User();
 
-      // Generate verification token.
-      $user->generateVerificationToken();
+      // Generate confirmation token.
+      $user->generateConfirmationToken();
 
       // Set field values.
       $user->name = $request->name;
       $user->email = $request->email;
       $user->password = Hash::make($request->password);
-      $user->email_verified = false;
+      $user->email_confirmed = false;
 
       // Save User.
       $user->save();
 
       // Send confirmation email.
-      Mail::to($user->email)->send(new EmailConfirmation($user->email_verification_token));
+      Mail::to($user->email)->send(new EmailConfirmation($user->email_confirmation_token));
 
       // Set API response code
       $this->code = 200;
@@ -135,45 +135,45 @@ class UserController extends Controller {
   }
 
   /**
-   * Verification
+   * Email confirmation.
    */
-  public function verifyEmail(EmailConfirmationRequest $request){
+  public function confirmEmail(EmailConfirmationRequest $request){
 
-    // Get User that needs to be verified.
-    $user = User::where('email_verification_token', $request->token)->first();
+    // Get User that needs to be confirmed.
+    $user = User::where('email_confirmation_token', $request->token)->first();
     
-    // User is already verified.
-    if($user->email_verified){
+    // User is already confirmed.
+    if($user->email_confirmed){
       // Set API response code.
       $this->code = 200;
       // Set API response scenario.
-      $this->response['scenario'] = 'verification.success.already';
+      $this->response['scenario'] = 'confirmation.success.already';
     }
-    // User hasn't been verified before.
+    // User hasn't been confirmed before.
     else{
       // User registered less than 8 hours ago.
       if($user->updated_at->diffInHours() < 8){
         // Set API response code.
         $this->code = 200;
         // Verify User.
-        $user->email_verified = true;
+        $user->email_confirmed = true;
         // Save changes.
         $user->save();
         // Set API response scenario.
-        $this->response['scenario'] = 'verification.success';
+        $this->response['scenario'] = 'confirmation.success';
       }
       // User registered more than 8 hours ago.
       else{
-        // Generate new verification token.
-        $user->generateVerificationToken();
+        // Generate new confirmation token.
+        $user->generateconfirmationToken();
         // Send confirmation email.
-        Mail::to($user->email)->send(new EmailConfirmation($user->email_verification_token));
+        Mail::to($user->email)->send(new EmailConfirmation($user->email_confirmation_token));
         // Save changes.
         $user->save();
         // Set API response code.
         $this->code = 410;
         // Set API response scenario.
-        $this->response['scenario'] = 'verification.failed.expired';
+        $this->response['scenario'] = 'confirmation.failed.expired';
       }
     }
 
@@ -182,7 +182,7 @@ class UserController extends Controller {
   }
 
   /**
-   * Login
+   * Login.
    */
   public function login(UserLoginRequest $request){
     // Login credentials.
@@ -195,7 +195,7 @@ class UserController extends Controller {
     // Succusseful login.
     if (Auth::attempt($credentials)) {
       // User is verified.
-      if(auth()->user()->email_verified){
+      if(auth()->user()->email_confirmed){
         // Set API success code.
         $this->code = 200;
         // Set API response scenario.
@@ -232,7 +232,7 @@ class UserController extends Controller {
   }
 
   /**
-  * Logout
+  * Logout.
   */
   public function logout(){
 
@@ -263,14 +263,14 @@ class UserController extends Controller {
    */
   public function sendForgottenPassword(SendForgottenPasswordRequest $request){
     
-    // Get wether or not User is verified.
-    $verified = User::where(['email' => $request->email])->first()->email_verified;
-    // User is unverified.
+    // Get wether or not User is confirmed.
+    $verified = User::where(['email' => $request->email])->first()->email_confirmed;
+    // User is not confirmed.
     if($verified === '0'){
       // Set API response code 409 - Conflict.
       $this->code = 409;
       // Set API response scenario.
-      $this->response['scenario'] = 'forgotten.failed.unverified';
+      $this->response['scenario'] = 'forgotten.failed.not-confirmed';
       // Send API response.
       return response()->json($this->response, $this->code);
     }

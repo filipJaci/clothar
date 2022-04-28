@@ -12,7 +12,7 @@ class EmailConfirmationRequest extends FormRequest{
   protected function failedValidation(Validator $validator) { 
     throw new HttpResponseException(
       response()->json([
-        'scenario' => 'verification.failed.validation',
+        'scenario' => 'confirmation.failed.validation',
         'data' => $validator->errors()->all()
       // Response HTTP status code is 400 - Bad request.
       ], 400)
@@ -36,7 +36,7 @@ class EmailConfirmationRequest extends FormRequest{
   public function rules(){
 
     return [
-     'token' => 'required|exists:users,email_verification_token'
+     'token' => 'required|exists:users,email_confirmation_token'
     ];
   }
 }
